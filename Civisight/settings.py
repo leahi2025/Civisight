@@ -70,7 +70,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Civisight.wsgi.application'
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres:accgcreate-x@db.dsvwrykolkvukrirorqh.supabase.co:5432/postgres')
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres.dsvwrykolkvukrirorqh:accgcreate-x@aws-0-us-west-1.pooler.supabase.com:5432/postgres')
 
 RESULT = urlparse(DATABASE_URL)
 
