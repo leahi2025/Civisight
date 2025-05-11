@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'counties',
+    'states',
+    'forms',
     'accounts'
 ]
 
@@ -72,7 +74,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Civisight.wsgi.application'
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres.dsvwrykolkvukrirorqh:[PASSWORD]@aws-0-us-west-1.pooler.supabase.com:5432/postgres')
+DATABASE_URL = os.getenv('DATABASE_URL', 'postgresql://postgres.dsvwrykolkvukrirorqh:accgcreate-x@aws-0-us-west-1.pooler.supabase.com:5432/postgres')
 
 RESULT = urlparse(DATABASE_URL)
 
