@@ -7,7 +7,8 @@ class County(models.Model):
     state = models.ForeignKey(
         'states.State',
         on_delete=models.CASCADE,
-        related_name="counties"
+        related_name="counties",
+        null=True
     )
 
     def __str__(self):
