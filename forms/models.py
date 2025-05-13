@@ -13,5 +13,3 @@ class Form(models.Model):
     #                            FileExtensionValidator(allowed_extensions=['pdf', 'doc', 'docx'])
     #                        ])
 
-    def __str__(self):
-        return self.name
