@@ -18,7 +18,6 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -29,7 +28,6 @@ SECRET_KEY = 'django-insecure-obzlt8+y5t+o1^!%8z_&j*#c30(4ee-gg&3u(%$f7b#z8p!2za
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -43,7 +41,8 @@ INSTALLED_APPS = [
     'counties',
     'states',
     'forms',
-    'accounts'
+    'accounts',
+    'storages'
 ]
 
 MIDDLEWARE = [
@@ -113,7 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
@@ -125,7 +123,6 @@ USE_I18N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
@@ -136,9 +133,26 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-
 AUTH_USER_MODEL = 'accounts.User'
 
-
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+STORAGES = {
+    # keep staticfiles local (or point this to S3 if you prefer)
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+    # default (media) storage → Supabase
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            # server-side credentials (from your Supabase project settings)
+            "access_key": os.getenv("SUPABASE_S3_ACCESS_KEY_ID"),
+            "secret_key": os.getenv("SUPABASE_S3_SECRET_ACCESS_KEY"),
+            # the bucket you created in Supabase Storage
+            "bucket_name": os.getenv("SUPABASE_S3_BUCKET_NAME"),
+            # your project’s region (e.g. "us-east-1")
+            "region_name": os.getenv("SUPABASE_S3_REGION_NAME"),
+            # S3 endpoint for Supabase
+            "endpoint_url": os.getenv("SUPABASE_S3_ENDPOINT_URL")
+        }
+    }
+}
