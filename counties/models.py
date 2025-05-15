@@ -1,7 +1,11 @@
 from django.db import models
 
+
 # Create your models here.
 class County(models.Model):
+    class Meta:
+        verbose_name_plural = "Counties"
+
     name = models.CharField(max_length=20, unique=True)
 
     state = models.ForeignKey(
