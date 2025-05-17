@@ -156,3 +156,11 @@ STORAGES = {
         }
     }
 }
+
+SUPABASE_URL = os.environ["SUPABASE_URL"]
+SUPABASE_API_KEY = os.environ["SUPABASE_API_KEY"]
+SUPABASE_JWKS_URL = os.environ["SUPABASE_JWKS_URL"]
+
+AUTHENTICATION_BACKENDS = [
+    "accounts.backends.SupabaseBackend"
+]
