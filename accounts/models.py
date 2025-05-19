@@ -10,6 +10,8 @@ class User(AbstractUser):
 
     role = models.CharField(choices=ROLE_CHOICES)
 
+    email = models.EmailField()
+
 
 class CountyOfficial(User):
     class Meta:
