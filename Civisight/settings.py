@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'states',
     'forms',
     'accounts',
-    'storages'
+    'storages',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -162,5 +163,6 @@ SUPABASE_API_KEY = os.environ["SUPABASE_API_KEY"]
 SUPABASE_JWKS_URL = os.environ["SUPABASE_JWKS_URL"]
 
 AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
     "accounts.backends.SupabaseBackend"
 ]
