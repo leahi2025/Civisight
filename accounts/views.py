@@ -24,11 +24,11 @@ def signup(request):
         if role == 0:
             state_name = request.POST["state"]
             state = State.objects.get(name=state_name)
-            so = StateOfficial.objects.create_user(username=username, email=email, password=password, state=state)
+            StateOfficial.objects.create_user(username=username, email=email, password=password, state=state)
         else:
             county_name = request.POST["county"]
             county = County.objects.get(name=county_name)
-            co = CountyOfficial.objects.create_user(username=username, email=email, password=password, county=county)
+            CountyOfficial.objects.create_user(username=username, email=email, password=password, county=county)
 
         result = supabase.auth.sign_up({"email": email, "password": password})
         return "hello world"
