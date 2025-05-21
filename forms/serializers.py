@@ -14,7 +14,3 @@ class FormSerializer(serializers.ModelSerializer):
             "completed_at"
         ]
         read_only_fields = ["date_uploaded"]
-
-    def create(self, validated_data):
-        validated_data["created_by"] = self.context["request"].user
-        return super().create(validated_data)

@@ -16,6 +16,7 @@ def signup(request):
         email = request.POST["email"]
         password = request.POST["password"]
         role = int(request.POST["role"])
+        
         if User.objects.filter(email=email).exists():
             messages.error(request, "That email is already registered.")
             return "invalid"

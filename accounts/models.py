@@ -24,8 +24,8 @@ class CountyOfficial(User):
         related_name="users"
     )
 
-    incomplete_forms = models.ManyToManyField(Form)
-    completed_forms = models.ManyToManyField(Form)
+    incomplete_forms = models.ManyToManyField(Form, related_name="countyofficial_incomplete")
+    completed_forms = models.ManyToManyField(Form, related_name="countyofficial_complete")
 
     def save(self, *args, **kwargs):
         self.role = 1
