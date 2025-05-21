@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'states',
     'forms',
     'accounts',
-    'storages'
+    'storages',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -163,5 +164,15 @@ SUPABASE_JWKS_URL = os.environ["SUPABASE_JWKS_URL"]
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "accounts.backends.SupabaseBackend"
+    "accounts.backends.SupabaseBackend",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
+        # If you have JWT or token auth, add it here
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticated",
+    ],
+}
