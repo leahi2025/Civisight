@@ -25,23 +25,8 @@ class FormPermission(permissions.BasePermission):
             return request.user.is_authenticated
         return IsStateOfficial().has_permission(request, view)
 
-
-class CompletedFormPermission(permissions.BasePermission):
-    """
-    - POST (uploading a completion): only CountyOfficials.
-    - SAFE_METHODS: allow any authenticated to list/retrieve.
-    - Other methods not supported (returns False).
-    """
-
-    def has_permission(self, request, view):
-        if request.method == "POST":
-            return IsCountyOfficial().has_permission(request, view)
-        if request.method in permissions.SAFE_METHODS:
-            return request.user.is_authenticated
-        return False
-
-    def has_object_permission(self, request, view, obj):
+    def has_object_permission(self, request, view, file):
         # For detail views: state sees all, county sees only their own
         if IsStateOfficial().has_permission(request, view):
             return True
-        return obj.completed_by == request.user
+        return file.countyofficials_completed == request.user or file.countyofficials_incomplete == request.user
