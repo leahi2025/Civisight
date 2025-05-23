@@ -1,0 +1,106 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+  }
+  
+  .login-container {
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .login-box {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+    width: 320px;
+    text-align: center;
+  }
+  
+  .login-box h2 {
+    margin-bottom: 20px;
+    font-size: 20px;
+  }
+  
+  .login-box input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+  
+  .sign-in-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #5b5df0;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  .sign-in-button:hover {
+    background-color: #4a4adb;
+  }
+  
+  .signup-text {
+    margin-top: 15px;
+    font-size: 14px;
+  }
+  
+  .signup-text a {
+    color: #5b5df0;
+    text-decoration: none;
+  }
+  .logo-img {
+    height: 50px;
+    margin-bottom: 20px;
+  }
+  
+    
+  /* -------------  GENERAL INPUT STYLE ------------- */
+  .input-style {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    font-size: 16px;
+    color: #111827;
+    border: 1px solid #d1d5db;     /* light-grey border */
+    border-radius: 8px;
+    background: #f8f9fa;           /* subtle grey like other boxes */
+    box-sizing: border-box;
+    transition: border 0.2s, box-shadow 0.2s;
+  }
+
+  /* -------------  MATCH FOCUS BEHAVIOUR ------------- */
+  .input-style:focus {
+    outline: none;
+    border-color: #5b5df0;
+    box-shadow: 0 0 0 1px #5b5df0;
+  }
+
+  /* -------------  EXTRA SELECT-ONLY TWEAKS ------------- */
+  select.input-style {
+    /* kill native arrow & add a custom one */
+    appearance: none;
+    -webkit-appearance: none;
+      -moz-appearance: none;
+
+    background-image: url("data:image/svg+xml;utf8,\
+      <svg fill='gray' width='16' height='16' viewBox='0 0 24 24' \
+          xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+    background-size: 16px;         /* arrow size */
+    cursor: pointer;
+    font-weight: 500;              /* same weight as other inputs */
+  }
+
+  /* optional: hide arrow in IE */
+  select.input-style::-ms-expand { display: none; }
