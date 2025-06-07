@@ -1,51 +1,102 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "./logo.png";
+import { useNavigate } from "react-router-dom";
 import "./styles.css"; // Make sure you import this for shared styling
 
 function Signup() {
-  const [accountType, setAccountType] = useState("State Agency");
+  const navigate = useNavigate();
+  const [form, setForm] = useState({
+    username: "",
+    email: "",
+    password: "",
+    confirm: "",
+    role: "0",
+    name: ""
+  });
+  const [error, setError] = useState("");
+
+  const handleChange = e => {
+    setForm({...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (form.password !== form.confirm) {
+      return setError("Passwords must match");
+    }
+
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/signup/", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(form)
+      });
+      const body = await res.json();
+    
+      if (res.ok) {
+        navigate("/login");
+      } else {
+        setError(body.error);
+        navigate("/signup", {state:{error:body.error}});
+      }
+    } catch (err) {
+      setError("Network error");
+    }
+  }
+
+  
 
   return (
     <div className="login-container">
       <div className="login-box">
         <img src={logo} alt="Logo" className="logo-img" />
         <h2>Create your account</h2>
+        <form onSubmit={handleSubmit}>
+          {error && <div className="error">{error}</div>}
+          <div style={{ display: "flex", gap: "10px" }}>
+            <input name="username" value={form.username} onChange={handleChange} type="text" placeholder="Name"/>
+          </div>
 
-        <div style={{ display: "flex", gap: "10px" }}>
-          <input type="text" placeholder="First Name" />
-          <input type="text" placeholder="Last Name" />
-        </div>
+          <input name="email" type="email" value={form.email} onChange={handleChange} placeholder="Email address" />
+          <input name="password" type="password" value={form.password} onChange={handleChange} placeholder="Password" />
+          <input name="confirm" type="password" value={form.confirm} onChange={handleChange} placeholder="Confirm Password" />
 
-        <input type="email" placeholder="Email address" />
-        <input type="password" placeholder="Password" />
-        <input type="password" placeholder="Confirm Password" />
+          {/* Dropdown styled like input */}
+          <select
+            name="role"
+            value={form.role}
+            onChange={handleChange}
+            className="styled-input"
+          >
+            <option value="0">State Official</option>
+            <option value="1">County Official</option>
+          </select>
 
-        {/* Dropdown styled like input */}
-        <select
-          className="styled-input"
-          value={accountType}
-          onChange={(e) => setAccountType(e.target.value)}
-        >
-          <option value="State Agency">State Agency</option>
-          <option value="County">County</option>
-        </select>
+          {/* Divider line */}
+          <hr style={{ width: "100%", border: "1px solid #ddd", margin: "15px 0" }} />
 
-        {/* Divider line */}
-        <hr style={{ width: "100%", border: "1px solid #ddd", margin: "15px 0" }} />
+          {/* Conditional Label */}
+          <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            type="text"
+            className="styled-input"
+            placeholder={`Enter your ${form.role === "0" ? "state" : "county"} name`}
+          />
 
-        {/* Conditional Label */}
-        <input
-          type="text"
-          className="styled-input"
-          placeholder={`Enter your ${accountType === "State Agency" ? "state agency" : "county"} name`}
-        />
+          <button type="submit" className="sign-in-button">Sign up</button>
 
-        <button className="sign-in-button">Sign up</button>
+          <p className="signup-text">
+            Already have an account? <Link to="/login">Sign in</Link>
+          </p>
 
-        <p className="signup-text">
-          Already have an account? <Link to="/">Sign in</Link>
-        </p>
+        </form>
+        
+        
+
+        
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from .models import Form
 from .serializers import FormSerializer
-from .permissions import FormPermission, IsStateOfficial
+from ..Civisight.permissions import FormPermission, IsStateOfficial
 from django.db.models import Q
 
 
