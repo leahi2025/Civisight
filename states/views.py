@@ -10,9 +10,12 @@ from states.models import State
 from counties.models import County
 from accounts.models import StateOfficial, CountyOfficial, User
 from django.contrib import messages
+from send_emails import main_email
 
 @api_view(['POST'])
 @permission_classes([IsStateOfficial])
 def send_email(request):
     data = request.data
+    user = request.user
+    
     send_to = data["receiver"]
