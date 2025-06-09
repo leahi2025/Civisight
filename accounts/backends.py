@@ -16,16 +16,20 @@ class SupabaseBackend(BaseBackend):
         try:
             payload = jwt.decode(
                 token,
-                key=_jwks,
-                algorithms=["RS256"],
-                audience=settings.SUPABASE_URL,
+                key=settings.SUPABASE_JWT_SECRET,
+                algorithms=["HS256"],
                 options={"verify_exp": True},
+                leeway=60,
+                audience="authenticated"
             )
-        except jwt.PyJWTError:
+            
+        except jwt.PyJWTError as e:
+            print(e)
             return None
-        user_id = payload.get("sub")
+        user_email = payload.get("email")
+        print(payload)
         try:
-            return User.objects.get(username=user_id)
+            return User.objects.get(email=user_email)
         except User.DoesNotExist:
             return None
 

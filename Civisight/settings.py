@@ -13,6 +13,9 @@ import os
 from urllib.parse import urlparse
 from pathlib import Path
 from dotenv import load_dotenv
+from supabase import create_client
+
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -170,6 +173,9 @@ STORAGES = {
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_API_KEY = os.environ["SUPABASE_API_KEY"]
 SUPABASE_JWKS_URL = os.environ["SUPABASE_JWKS_URL"]
+SUPABASE_JWT_SECRET = os.environ["SUPABASE_JWT_SECRET"]
+
+supabase = create_client(SUPABASE_URL, SUPABASE_API_KEY)
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",

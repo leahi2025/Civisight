@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import logo from "./logo.png";
 import { useNavigate } from "react-router-dom";
+import axios from './api';
 import "./styles.css"; // Make sure you import this for shared styling
 
 function Signup() {
@@ -27,21 +28,18 @@ function Signup() {
     }
 
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/signup/", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(form)
-      });
-      const body = await res.json();
-    
-      if (res.ok) {
-        navigate("/login");
-      } else {
-        setError(body.error);
-        navigate("/signup", {state:{error:body.error}});
-      }
+      const res = await axios.post("/api/signup/", form);
+      navigate("/login");
+
     } catch (err) {
-      setError("Network error");
+      if (err.response) {
+        // your Django view should return JSON like { error: "…" }
+        setError(err.response.data.error || "Signup failed");
+        // if you want to push it into location.state, you can still do:
+        navigate("/signup", { state: { error: err.response.data.error } });
+      } else {
+        setError("Network error");
+      }
     }
   }
 

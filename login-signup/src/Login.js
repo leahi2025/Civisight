@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import logo from "./logo.png"; 
 import { Link } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
+import axios from './api';
 
 function Login() {
 
@@ -20,27 +20,21 @@ function Login() {
   const handleSubmit = async e => {
     e.preventDefault();
 
-    const csrftoken = Cookies.get('csrftoken');
-
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/signin/", {
-        method: "POST",
-        credentials: "include",
-        headers: {"Content-Type": "application/json",
-                  "X-CSRFToken": csrftoken,
-        },
-        body: JSON.stringify(form)
-      });
-      const body = await res.json();
+      const res = await axios.post("/api/signin/", form);
+      navigate("/login")
     
-      if (res.ok) {
-        navigate("/signin");
-      } else {
-        setError(body.error);
-        navigate("/signin", {state:{error:body.error}});
-      }
     } catch (err) {
-      setError("Network error");
+      if (err.response) {
+        // server returned 4xx/5xx
+        const msg = err.response.data.error || "Sign-in failed";
+        setError(msg);
+        // optionally push into location.state so freshly loaded pages can read it
+        navigate("/login", { state: { error: msg } });
+      } else {
+        // network error, timeout, etc.
+        setError("Network error");
+      }
     }
   }
 
