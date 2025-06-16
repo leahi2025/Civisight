@@ -27,7 +27,6 @@ class SupabaseBackend(BaseBackend):
             print(e)
             return None
         user_email = payload.get("email")
-        print(payload)
         try:
             return User.objects.get(email=user_email)
         except User.DoesNotExist:

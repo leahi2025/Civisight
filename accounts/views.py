@@ -63,7 +63,6 @@ def signin(request):
     user = authenticate(request, token=token)
     if user:
         login(request, user)  # creates a Django session
-        
         request.session["supabase_jwt"] = token
         return Response({"message": "ok"}, status=status.HTTP_201_CREATED)
         #return redirect("dashboard")
