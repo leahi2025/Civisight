@@ -21,6 +21,8 @@ from accounts.views import signin, signup
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("api/forms/", include("forms.urls")),
+    path("api/counties/", include("counties.urls")),
+    path("api/states/", include("states.urls")),
     path("api/signin/", signin, name='signin'),
     path("api/signup/", signup, name='signup')
 ]

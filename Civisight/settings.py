@@ -8,6 +8,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
+
+MADE AUTHENTICATION MORE RELAXED (Daksh)
 """
 import os
 from urllib.parse import urlparse
@@ -98,7 +100,7 @@ RESULT = urlparse(DATABASE_URL)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': RESULT.path.lstrip('/'),
+        'NAME': RESULT.path.decode('utf-8').lstrip('/') if isinstance(RESULT.path, bytes) else RESULT.path.lstrip('/'),
         'USER': RESULT.username,
         'PASSWORD': RESULT.password,
         'HOST': RESULT.hostname,
@@ -188,7 +190,7 @@ REST_FRAMEWORK = {
         # If you have JWT or token auth, add it here
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
 }
 

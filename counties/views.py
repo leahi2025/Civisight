@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from rest_framework import viewsets
+from .models import County
+from .serializers import CountySerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-# Create your views here.
+class CountyViewSet(viewsets.ModelViewSet):
+    queryset = County.objects.all()
+    serializer_class = CountySerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]

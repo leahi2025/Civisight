@@ -1,13 +1,13 @@
 from rest_framework import viewsets
-from .models import Form
-from .serializers import FormSerializer
-from Civisight.permissions import FormPermission, IsStateOfficial
+from .models import CountyForm, Form
+from .serializers import CountyFormSerializer, FormSerializer
+from Civisight.permissions import FormPermission, IsStateOfficial, IsCountyOfficial
 from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.decorators import permission_classes as p_classes
 from rest_framework.response import Response
 from django.core.mail import send_mail
-from accounts.models import CountyOfficial
+
 
 
 class FormViewSet(viewsets.ModelViewSet):
@@ -20,12 +20,12 @@ class FormViewSet(viewsets.ModelViewSet):
         if IsStateOfficial().has_permission(self.request, self):
             return qs
         return qs.filter(
-            Q(countyofficials_completed=self.request.user) |
-            Q(countyofficials_incomplete=self.request.user)
+            Q(countyofficial_complete=self.request.user) |
+            Q(countyofficial_incomplete=self.request.user)
         )
 
     @action(detail=True, methods=["post"])
-    @p_classes[IsStateOfficial]
+    @p_classes(IsStateOfficial)
     def remind(self, request, pk=None):
         """
         POST /api/forms/{pk}/remind/
@@ -41,3 +41,8 @@ class FormViewSet(viewsets.ModelViewSet):
                 recipient_list=[u],
             )
         return Response({"sent_to": [u for u in user_emails]})
+    
+class CountyFormViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsCountyOfficial]
+    queryset = CountyForm.objects.all()
+    serializer_class = CountyFormSerializer

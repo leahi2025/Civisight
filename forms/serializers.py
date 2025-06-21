@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Form
 from accounts.models import CountyOfficial
+from .models import CountyForm
+
 
 
 class FormSerializer(serializers.ModelSerializer):
@@ -23,3 +25,8 @@ class FormSerializer(serializers.ModelSerializer):
             "incomplete_user_ids"
         ]
         read_only_fields = ["date_uploaded"]
+
+class CountyFormSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CountyForm
+        fields = '__all__'
