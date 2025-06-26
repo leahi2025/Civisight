@@ -38,6 +38,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'accounts',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -46,7 +47,6 @@ INSTALLED_APPS = [
     'counties',
     'states',
     'forms',
-    'accounts',
     'storages',
     'rest_framework',
     'corsheaders'
@@ -181,17 +181,20 @@ supabase = create_client(SUPABASE_URL, SUPABASE_API_KEY)
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    "accounts.backends.SupabaseBackend",
+    # "accounts.backends.SupabaseBackend",
 ]
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": [
+    # "DEFAULT_AUTHENTICATION_CLASSES": [
+    #     "rest_framework.authentication.SessionAuthentication",
+    #     # If you have JWT or token auth, add it here
+    # ],
+    # "DEFAULT_PERMISSION_CLASSES": [
+    #     "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+    # ],
+    "DEFAULT_AUTHENTICATOR_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
-        # If you have JWT or token auth, add it here
-    ],
-    "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
-    ],
+    ]
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

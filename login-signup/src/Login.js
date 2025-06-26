@@ -22,7 +22,7 @@ function Login() {
 
     try {
       const res = await axios.post("/api/signin/", form);
-      navigate("/login")
+      navigate("/dashboard") // Changed to navigate to dashboard instead of login
     
     } catch (err) {
       if (err.response) {

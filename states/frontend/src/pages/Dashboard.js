@@ -3,12 +3,16 @@
 // Fetches and displays county data from the API
 // Allows users to click on a county to view its details
 // Provides a button to create a new global form
+// Includes due date for forms and reminder email functionality
+// NEW: Allows creation of new counties with a + button
 
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
 import Header from '../components/Header';
 import CountyCard from '../components/CountyCard';
 import CountyDetail from '../components/CountyDetail';
+import FormCreationModal from '../components/FormCreationModal';
+import CountyCreationModal from '../components/CountyCreationModal';
 
 const Dashboard = () => {
   const [counties, setCounties] = useState([]);
@@ -16,10 +20,16 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showGlobalForm, setShowGlobalForm] = useState(false);
+  const [showCountyForm, setShowCountyForm] = useState(false);
+  const [showCountyCreation, setShowCountyCreation] = useState(false);
+  const [selectedCountyForForm, setSelectedCountyForForm] = useState(null);
   const [formTitle, setFormTitle] = useState('');
   const [formDescription, setFormDescription] = useState('');
+  const [formDueDate, setFormDueDate] = useState('');
   const [selectedCountiesForForm, setSelectedCountiesForForm] = useState([]);
   const [creatingForm, setCreatingForm] = useState(false);
+  const [creatingCounty, setCreatingCounty] = useState(false);
+  const [sendingReminders, setSendingReminders] = useState(false);
 
   useEffect(() => {
     fetchCounties();
@@ -55,6 +65,29 @@ const Dashboard = () => {
   const handleCreateGlobalForm = () => {
     setShowGlobalForm(true);
   };
+  
+  const handleCreateCounty = () => {
+    setShowCountyCreation(true);
+  };
+
+  const handleCountyCreationSubmit = async (countyData) => {
+    setCreatingCounty(true);
+    try {
+      console.log('Creating county with data:', countyData);
+      // The backend will automatically add the state agency
+      const response = await api.counties.create(countyData);
+      console.log('County creation response:', response);
+      
+      setShowCountyCreation(false);
+      fetchCounties(); // Refresh the counties list
+      alert('County created successfully!');
+    } catch (err) {
+      console.error('County creation error:', err);
+      alert('Failed to create county: ' + err.message);
+    } finally {
+      setCreatingCounty(false);
+    }
+  };
 
   const handleGlobalFormSubmit = async (e) => {
     e.preventDefault();
@@ -63,12 +96,10 @@ const Dashboard = () => {
       await api.post('forms/', {
         title: formTitle,
         description: formDescription,
+        finish_by: formDueDate,
         counties: selectedCountiesForForm,
       });
-      setShowGlobalForm(false);
-      setFormTitle('');
-      setFormDescription('');
-      setSelectedCountiesForForm([]);
+      resetFormState();
       fetchCounties();
     } catch (err) {
       alert('Failed to create form: ' + err.message);
@@ -77,14 +108,58 @@ const Dashboard = () => {
     }
   };
 
-  const handleCountySelect = (e) => {
-    const options = Array.from(e.target.selectedOptions);
-    setSelectedCountiesForForm(options.map(opt => opt.value));
+  const handleCreateCountyForm = (county) => {
+    setSelectedCountyForForm(county);
+    setShowCountyForm(true);
   };
 
-  const handleCreateCountyForm = (county) => {
-    // TODO: Implement county-specific form creation
-    console.log('Create form for county:', county.name);
+  const handleCountyFormSubmit = async (e) => {
+    e.preventDefault();
+    setCreatingForm(true);
+    try {
+      await api.post('forms/', {
+        title: formTitle,
+        description: formDescription,
+        finish_by: formDueDate,
+        counties: [selectedCountyForForm.id],
+      });
+      resetCountyFormState();
+      fetchCounties();
+    } catch (err) {
+      alert('Failed to create form: ' + err.message);
+    } finally {
+      setCreatingForm(false);
+    }
+  };
+
+  const handleSendReminders = async (formId, userEmails) => {
+    setSendingReminders(true);
+    try {
+      await api.post(`forms/${formId}/remind/`, {
+        user_emails: userEmails
+      });
+      alert('Reminder emails sent successfully!');
+    } catch (err) {
+      alert('Failed to send reminder emails: ' + err.message);
+    } finally {
+      setSendingReminders(false);
+    }
+  };
+
+  const resetFormState = () => {
+    setFormTitle('');
+    setFormDescription('');
+    setFormDueDate('');
+    setSelectedCountiesForForm([]);
+    setShowGlobalForm(false);
+  };
+
+  const resetCountyFormState = () => {
+    setFormTitle('');
+    setFormDescription('');
+    setFormDueDate('');
+    setSelectedCountyForForm(null);
+    setShowCountyForm(false);
   };
 
   if (loading) return (
@@ -118,118 +193,52 @@ const Dashboard = () => {
   return (
     <div style={{ background: '#F9FAFB', minHeight: '100vh' }}>
       <Header onCreateGlobalForm={handleCreateGlobalForm} />
-      {/* Global Form Modal */}
-      {showGlobalForm && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(31,41,55,0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000
-        }}>
-          <form
-            onSubmit={handleGlobalFormSubmit}
-            style={{
-              background: '#FFFFFF',
-              padding: '2rem',
-              borderRadius: '12px',
-              boxShadow: '0 4px 24px rgba(0,0,0,0.15)',
-              minWidth: '350px',
-              maxWidth: '90vw'
-            }}
-          >
-            <h2 style={{ color: '#4F46E5', marginBottom: '1rem' }}>Create Global Form</h2>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ color: '#111827', fontWeight: 500 }}>Title</label>
-              <input
-                type="text"
-                value={formTitle}
-                onChange={e => setFormTitle(e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '0.5rem',
-                  border: '1px solid #E5E7EB',
-                  borderRadius: '6px',
-                  marginTop: '0.25rem'
-                }}
-              />
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ color: '#111827', fontWeight: 500 }}>Description</label>
-              <textarea
-                value={formDescription}
-                onChange={e => setFormDescription(e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  padding: '0.5rem',
-                  border: '1px solid #E5E7EB',
-                  borderRadius: '6px',
-                  marginTop: '0.25rem'
-                }}
-              />
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <label style={{ color: '#111827', fontWeight: 500 }}>Assign to Counties</label>
-              <select
-                multiple
-                value={selectedCountiesForForm}
-                onChange={handleCountySelect}
-                style={{
-                  width: '100%',
-                  padding: '0.5rem',
-                  border: '1px solid #E5E7EB',
-                  borderRadius: '6px',
-                  marginTop: '0.25rem',
-                  minHeight: '80px'
-                }}
-              >
-                {counties.map(county => (
-                  <option key={county.id} value={county.id}>{county.name}</option>
-                ))}
-              </select>
-              <div style={{ color: '#6B7280', fontSize: '0.85rem', marginTop: '0.25rem' }}>
-                Hold Ctrl (Windows) or Cmd (Mac) to select multiple counties.
-              </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
-              <button
-                type="button"
-                onClick={() => setShowGlobalForm(false)}
-                style={{
-                  background: '#E5E7EB',
-                  color: '#111827',
-                  border: 'none',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '6px',
-                  cursor: 'pointer'
-                }}
-                disabled={creatingForm}
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                style={{
-                  background: '#4F46E5',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  padding: '0.5rem 1.5rem',
-                  borderRadius: '6px',
-                  fontWeight: 500,
-                  cursor: 'pointer'
-                }}
-                disabled={creatingForm}
-              >
-                {creatingForm ? 'Creating...' : 'Create'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
+      
+      {/* Global Form Creation Modal */}
+      <FormCreationModal
+        isOpen={showGlobalForm}
+        onClose={resetFormState}
+        onSubmit={handleGlobalFormSubmit}
+        formTitle={formTitle}
+        setFormTitle={setFormTitle}
+        formDescription={formDescription}
+        setFormDescription={setFormDescription}
+        formDueDate={formDueDate}
+        setFormDueDate={setFormDueDate}
+        selectedCountiesForForm={selectedCountiesForForm}
+        setSelectedCountiesForForm={setSelectedCountiesForForm}
+        counties={counties}
+        creatingForm={creatingForm}
+        title="Create Global Form"
+      />
+
+      {/* County Form Creation Modal */}
+      <FormCreationModal
+        isOpen={showCountyForm}
+        onClose={resetCountyFormState}
+        onSubmit={handleCountyFormSubmit}
+        formTitle={formTitle}
+        setFormTitle={setFormTitle}
+        formDescription={formDescription}
+        setFormDescription={setFormDescription}
+        formDueDate={formDueDate}
+        setFormDueDate={setFormDueDate}
+        selectedCountiesForForm={selectedCountyForForm ? [selectedCountyForForm.id] : []}
+        setSelectedCountiesForForm={() => {}}
+        counties={counties}
+        creatingForm={creatingForm}
+        title={`Create Form for ${selectedCountyForForm?.name || 'County'}`}
+        disableCountySelection={true}
+      />
+
+      {/* County Creation Modal */}
+      <CountyCreationModal
+        isOpen={showCountyCreation}
+        onClose={() => setShowCountyCreation(false)}
+        onSubmit={handleCountyCreationSubmit}
+        creatingCounty={creatingCounty}
+        title="Add New County"
+      />
 
       {/* Main Content */}
       {selectedCounty ? (
@@ -237,19 +246,16 @@ const Dashboard = () => {
           county={selectedCounty}
           onBack={handleBack}
           onCreateForm={handleCreateCountyForm}
+          onSendReminders={handleSendReminders}
+          sendingReminders={sendingReminders}
         />
       ) : (
         <main style={{ padding: '2rem' }}>
-          <h2 style={{
-            color: '#111827',
-            fontSize: '1.875rem',
-            fontWeight: 'bold',
-            marginBottom: '1.5rem'
-          }}>Counties</h2>
           <div style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
-            gap: '1.5rem' 
+            gap: '1.5rem',
+            position: 'relative'
           }}>
             {counties.map(county => (
               <CountyCard 
@@ -258,6 +264,59 @@ const Dashboard = () => {
                 onCardClick={handleCountyClick}
               />
             ))}
+            
+            {/* Add County Button */}
+            <div 
+              onClick={handleCreateCounty}
+              style={{
+                background: 'white',
+                borderRadius: '8px',
+                padding: '1.5rem',
+                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease-in-out',
+                border: '2px dashed #D1D5DB',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minHeight: '150px'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.borderColor = '#3B82F6';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.borderColor = '#D1D5DB';
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)';
+              }}
+            >
+              <div style={{
+                background: '#3B82F6',
+                color: 'white',
+                borderRadius: '50%',
+                width: '48px',
+                height: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                marginBottom: '1rem'
+              }}>
+                +
+              </div>
+              <p style={{
+                color: '#6B7280',
+                fontSize: '0.875rem',
+                textAlign: 'center',
+                margin: 0
+              }}>
+                Add New County
+              </p>
+            </div>
           </div>
         </main>
       )}
