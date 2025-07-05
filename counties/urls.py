@@ -5,7 +5,7 @@ from rest_framework.routers import DefaultRouter
 print("=== LOADING COUNTIES URLS ===")
 
 router = DefaultRouter()
-router.register(r'counties', CountyViewSet, basename='county')
+router.register(r'', CountyViewSet, basename='county')
 
 urlpatterns = [
     path('test/', test_county_view, name='test_county'),

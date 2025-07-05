@@ -1,6 +1,6 @@
 // serves as communication bridge between frontend and backend
 
-const API_URL = "http://127.0.0.1:8001/api"; // points to Django server
+const API_URL = "http://127.0.0.1:8000/api"; // points to Django server
 
 const api = {
     async get(endpoint) {

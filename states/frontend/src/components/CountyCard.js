@@ -13,9 +13,6 @@ const CountyCard = ({ county, onCardClick }) => {
       onClick={() => onCardClick(county)}
     >
       <h3 className="countyCardTitle">{county.name} County</h3>
-      <p className="countyCardDescription">
-        {county.description || 'County information and forms management'}
-      </p>
       
       <div className="countyCardStats">
         <div className="countyCardStat">
@@ -23,12 +20,6 @@ const CountyCard = ({ county, onCardClick }) => {
             {county.forms ? county.forms.length : 0}
           </span>
           <span className="countyCardStatLabel">Forms</span>
-        </div>
-        <div className="countyCardStat">
-          <span className="countyCardStatNumber">
-            {county.task_count || 0}
-          </span>
-          <span className="countyCardStatLabel">Tasks</span>
         </div>
       </div>
     </div>

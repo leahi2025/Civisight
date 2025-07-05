@@ -8,12 +8,18 @@ import React from 'react';
 import './StyleComponents.css';
 
 const CountyDetail = ({ county, onBack, onCreateForm, onSendReminders, sendingReminders }) => {
-  const handleSendReminders = (form) => {
-    if (form.incomplete_user_ids && form.incomplete_user_ids.length > 0) {
-      onSendReminders(form.id, form.incomplete_user_ids);
+  const handleSendReminders = (formId) => {
+    if (county.email) {
+      onSendReminders(formId, [county.email]);
     } else {
-      alert('No incomplete users found for this form.');
+      alert('No email found for this county.');
     }
+    // TODO: add reminder email functionality for incomplete users
+    // if (form.incomplete_user_ids && form.incomplete_user_ids.length > 0) {
+    //   onSendReminders(form.id, form.incomplete_user_ids);
+    // } else {
+    //   alert('No incomplete users found for this form.');
+    // }
   };
 
   const formatDueDate = (dateString) => {
@@ -49,54 +55,42 @@ const CountyDetail = ({ county, onBack, onCreateForm, onSendReminders, sendingRe
         <h3 className="countyDetailSectionTitle">Assigned Forms</h3>
         
         {county.forms && county.forms.length > 0 ? (
-          <div>
-            {county.forms.map(form => (
-              <div key={form.id} className="countyDetailFormCard">
-                <div className="countyDetailFormHeader">
-                  <h4 className="countyDetailFormTitle">{form.title}</h4>
-                  <span className={`countyDetailFormStatus ${form.is_completed ? '' : 'pending'}`}>
-                    {form.is_completed ? 'Completed' : 'Pending'}
-                  </span>
-                </div>
-                
-                <p className="countyDetailFormDescription">{form.description}</p>
-                
-                <div className="countyDetailFormMeta">
-                  <span className="countyDetailFormDueDate">
-                    Due: {formatDueDate(form.finish_by)}
-                  </span>
-                  
-                  {form.incomplete_user_ids && form.incomplete_user_ids.length > 0 && (
-                    <span className="countyDetailFormIncomplete">
-                      {form.incomplete_user_ids.length} incomplete
-                    </span>
-                  )}
-                </div>
+  <div>
+    {county.forms.map(countyForm => (
+      <div key={countyForm.id} className="countyDetailFormCard">
+        <div className="countyDetailFormHeader">
+          <h4 className="countyDetailFormTitle">{countyForm.form.name}</h4>
+          <span className={`countyDetailFormStatus ${countyForm.form.is_completed ? '' : 'pending'}`}>
+            {countyForm.form.is_completed ? 'Completed' : 'Pending'}
+          </span>
+        </div>
+        
+        <div className="countyDetailFormMeta">
+          <span className="countyDetailFormDueDate">
+            Due: {formatDueDate(countyForm.form.finish_by)}
+          </span>
+        </div>
 
-                {/* Action buttons */}
-                <div className="countyDetailFormActions">
-                  {!form.is_completed && form.incomplete_user_ids && form.incomplete_user_ids.length > 0 && (
-                    <button
-                      onClick={() => handleSendReminders(form)}
-                      disabled={sendingReminders}
-                      className="countyDetailFormButton primary"
-                    >
-                      {sendingReminders ? 'Sending...' : 'Send Reminder Emails'}
-                    </button>
-                  )}
-                  
-                  <button className="countyDetailFormButton secondary">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="countyDetailEmpty">
-            No forms assigned to this county yet.
-          </div>
-        )}
+        {/* Add Send Reminder Button */}
+        <div className="countyDetailFormActions">
+          {!countyForm.form.is_completed && (
+            <button
+              onClick={() => handleSendReminders(countyForm.form.id)}
+              disabled={sendingReminders}
+              className="countyDetailFormButton primary"
+            >
+              {sendingReminders ? 'Sending...' : 'Send Reminder'}
+            </button>
+          )}
+        </div>
+      </div>
+    ))}
+  </div>
+) : (
+  <div className="countyDetailEmpty">
+    No forms assigned to this county yet.
+  </div>
+)}
       </div>
     </div>
   );

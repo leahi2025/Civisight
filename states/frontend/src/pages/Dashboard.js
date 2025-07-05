@@ -94,7 +94,7 @@ const Dashboard = () => {
     setCreatingForm(true);
     try {
       await api.post('forms/', {
-        title: formTitle,
+        name: formTitle,
         description: formDescription,
         finish_by: formDueDate,
         counties: selectedCountiesForForm,
@@ -118,7 +118,7 @@ const Dashboard = () => {
     setCreatingForm(true);
     try {
       await api.post('forms/', {
-        title: formTitle,
+        name: formTitle,
         description: formDescription,
         finish_by: formDueDate,
         counties: [selectedCountyForForm.id],

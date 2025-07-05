@@ -65,7 +65,12 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:3002",
+    "http://127.0.0.1:3002",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -192,15 +197,21 @@ REST_FRAMEWORK = {
     # "DEFAULT_PERMISSION_CLASSES": [
     #     "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     # ],
-    "DEFAULT_AUTHENTICATOR_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+    ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
     ]
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# TODO: add email backend and change to SMTP instead of console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+# EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

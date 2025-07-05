@@ -6,23 +6,24 @@ from .models import CountyForm
 
 
 class FormSerializer(serializers.ModelSerializer):
-    incomplete_user_ids = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field="email",
-        source="countyofficial_incomplete"
-    )
+    # incomplete_user_ids = serializers.SlugRelatedField(
+    #     many=True,
+    #     read_only=True,
+    #     slug_field="email",
+    #     source="countyofficial_incomplete"
+    # )
     class Meta:
         
         model = Form
         fields = [
+            "name",
             "id",
             "date_uploaded",
             "finish_by",
             "file",
             "is_completed",
             "completed_at",
-            "incomplete_user_ids"
+            # "incomplete_user_ids"
         ]
         read_only_fields = ["date_uploaded"]
 
