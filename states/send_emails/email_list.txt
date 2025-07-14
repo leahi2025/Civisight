@@ -1,1 +1,1 @@
-#List of emails you want to send message to
+"kautilyaveer24@gmail.com"
