@@ -186,22 +186,18 @@ supabase = create_client(SUPABASE_URL, SUPABASE_API_KEY)
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
-    # "accounts.backends.SupabaseBackend",
+    "accounts.backends.SupabaseBackend",
 ]
 
 REST_FRAMEWORK = {
-    # "DEFAULT_AUTHENTICATION_CLASSES": [
-    #     "rest_framework.authentication.SessionAuthentication",
-    #     # If you have JWT or token auth, add it here
-    # ],
-    # "DEFAULT_PERMISSION_CLASSES": [
-    #     "rest_framework.permissions.IsAuthenticatedOrReadOnly",
-    # ],
     "DEFAULT_AUTHENTICATION_CLASSES": [
+         "rest_framework.authentication.SessionAuthentication",
+    #     # If you have JWT or token auth, add it here
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.AllowAny",
-    ]
+         "rest_framework.permissions.IsAuthenticatedOrReadOnly",\
+         "rest_framework.permissions.AllowAny",
+    ],
 }
 
 
