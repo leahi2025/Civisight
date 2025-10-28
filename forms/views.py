@@ -25,7 +25,7 @@ class FormViewSet(viewsets.ModelViewSet):
         )
 
     @action(detail=True, methods=["post"])
-    @p_classes[IsStateOfficial]
+    @p_classes([IsStateOfficial])
     def remind(self, request, pk=None):
         """
         POST /api/forms/{pk}/remind/
