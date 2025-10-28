@@ -211,3 +211,13 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 # EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Development-only: relax SameSite and Secure cookie settings so the frontend dev server
+# (running on a different origin like http://localhost:3000) can send/receive session and CSRF cookies.
+# These are only applied when DEBUG is True.
+    # Allow cross-site cookies for local dev (axios withCredentials will then succeed)
+SESSION_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = None
+    # For local HTTP development (no HTTPS), make Secure=False so browsers accept cookies over HTTP.
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False

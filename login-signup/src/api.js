@@ -20,3 +20,8 @@ axios.interceptors.request.use(config => {
 
 
 export default axios;
+
+// Helper: fetch counties (returns promise resolving to array of counties)
+export const fetchCounties = (params = {}) => {
+  return axios.get('/api/counties/', { params }).then(res => res.data);
+};

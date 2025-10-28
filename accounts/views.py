@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view, permission_classes
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from rest_framework import status
 from rest_framework.response import Response
@@ -12,6 +13,7 @@ from accounts.models import StateOfficial, CountyOfficial, User
 from django.contrib import messages
 from Civisight.settings import supabase
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
@@ -42,6 +44,7 @@ def signup(request):
         #return redirect("login")
     #return render(request, "signup.html")
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signin(request):

@@ -36,7 +36,7 @@ body {
   .sign-in-button {
     width: 100%;
     padding: 10px;
-    background-color: #5b5df0;
+    background-color: #2f2bd6; /* darker blue */
     color: white;
     border: none;
     border-radius: 5px;
@@ -46,7 +46,44 @@ body {
   }
   
   .sign-in-button:hover {
-    background-color: #4a4adb;
+    background-color: #2323b0; /* darker on hover */
+  }
+
+  /* Center response/tone text blocks */
+  .response, .tone {
+    text-align: center;
+    margin: 12px 0;
+    color: #111827;
+  }
+
+  /* Make buttons slightly bolder and add an alternate class for small buttons */
+  .btn {
+    background-color: #2f2bd6;
+    color: #fff;
+    border-radius: 6px;
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .btn-small {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+
+  /* Reduce slider (range inputs) width so they cover less of the screen */
+  input[type="range"] {
+    width: 180px; /* narrower default */
+    max-width: 60%;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  /* Keep range visually compact on small screens */
+  @media (max-width: 420px) {
+    input[type="range"] { width: 140px; max-width: 70%; }
+    .login-box { width: 280px; padding: 28px; }
   }
   
   .signup-text {

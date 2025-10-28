@@ -28,7 +28,8 @@ function Signup() {
     }
 
     try {
-      const res = await axios.post("/api/signup/", form);
+  // Send signup without attaching existing cookies/session to the request.
+      await axios.post("/api/signup/", form, { withCredentials: false });
       navigate("/login");
 
     } catch (err) {
