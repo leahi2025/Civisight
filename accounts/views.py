@@ -45,13 +45,11 @@ def signup(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signin(request):
-    print("RAW BODY:", request.body)
     data = request.data
     
 
     email = data["email"].strip()
     password = data["password"].strip()
-    print(email, password)
     auth = supabase.auth.sign_in_with_password({"email": email, "password": password})
     token = auth.session.access_token
     

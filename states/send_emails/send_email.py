@@ -3,10 +3,10 @@ from email.mime.text import MIMEText
 def main(str):
 
 
-    sender_email = """sender's email"""
+    sender_email = "gatech.civisight@gmail.com"
     with open("email_sender_password.txt", "r") as file2:
         password = file2.read()
-    with open("email_ist.txt", "r") as file:
+    with open("email_list.txt", "r") as file:
         data = file.read()
         for i in data.split("\n"):
             receiver_email = i.strip()

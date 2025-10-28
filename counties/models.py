@@ -7,6 +7,10 @@ class County(models.Model):
         verbose_name_plural = "Counties"
 
     name = models.CharField(max_length=20, unique=True)
+    email = models.EmailField(unique=True, default='no-email@example.com')  # with default
+    phone = models.CharField(max_length=15, default='')  # with default
+    created_at = models.DateTimeField(auto_now_add=True)
+    task_count = models.IntegerField(default=0)
 
     state = models.ForeignKey(
         'states.State',

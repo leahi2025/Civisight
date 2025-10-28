@@ -1,0 +1,465 @@
+/* ===== HEADER COMPONENT ===== */
+.header {
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .headerTitle {
+    color: #111827;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .headerButton {
+    background: #4F46E5;
+    color: #FFFFFF;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .headerButton:hover {
+    background: #4338CA;
+  }
+  
+  /* ===== COUNTY CARD COMPONENT ===== */
+  .countyCard {
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 1.5rem;
+    background: #FFFFFF;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .countyCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-color: #4F46E5;
+  }
+  
+  .countyCardTitle {
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem 0;
+  }
+  
+  .countyCardDescription {
+    color: #6B7280;
+    font-size: 0.875rem;
+    margin: 0 0 1rem 0;
+    line-height: 1.4;
+  }
+  
+  .countyCardStats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+  }
+  
+  .countyCardStat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .countyCardStatNumber {
+    color: #111827;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .countyCardStatLabel {
+    color: #6B7280;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  /* ===== COUNTY DETAIL COMPONENT ===== */
+  .countyDetail {
+    padding: 2rem;
+  }
+  
+  .countyDetailHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .countyDetailBackButton {
+    background: none;
+    border: 1px solid #E5E7EB;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    color: #6B7280;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+  
+  .countyDetailBackButton:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+  }
+  
+  .countyDetailCreateButton {
+    background: #4F46E5;
+    color: #FFFFFF;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .countyDetailCreateButton:hover {
+    background: #4338CA;
+  }
+  
+  .countyDetailTitle {
+    color: #111827;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1.5rem;
+  }
+  
+  .countyDetailSectionTitle {
+    color: #111827;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  
+  .countyDetailFormCard {
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    padding: 1rem;
+    background: #FFFFFF;
+    margin-bottom: 1rem;
+  }
+  
+  .countyDetailFormHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.5rem;
+  }
+  
+  .countyDetailFormTitle {
+    margin: 0;
+    color: #111827;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  .countyDetailFormStatus {
+    background: #10B981;
+    color: #FFFFFF;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .countyDetailFormStatus.pending {
+    background: #F59E0B;
+  }
+  
+  .countyDetailFormDescription {
+    margin: 0 0 0.5rem 0;
+    color: #6B7280;
+    font-size: 0.875rem;
+  }
+  
+  .countyDetailFormMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+  
+  .countyDetailFormDueDate {
+    color: #6B7280;
+    font-size: 0.75rem;
+  }
+  
+  .countyDetailFormIncomplete {
+    color: #DC2626;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+  
+  .countyDetailFormActions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  
+  .countyDetailFormButton {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  
+  .countyDetailFormButton.primary {
+    background: #DC2626;
+    color: #FFFFFF;
+  }
+  
+  .countyDetailFormButton.primary:hover {
+    background: #B91C1C;
+  }
+  
+  .countyDetailFormButton.secondary {
+    background: #F3F4F6;
+    color: #374151;
+  }
+  
+  .countyDetailFormButton.secondary:hover {
+    background: #E5E7EB;
+  }
+  
+  .countyDetailFormButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .countyDetailEmpty {
+    text-align: center;
+    padding: 2rem;
+    color: #6B7280;
+    background: #FFFFFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+  }
+  
+  /* ===== FORM CARD COMPONENT ===== */
+  .formCard {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 1rem;
+    margin: 0.5rem;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  
+  .formCardTitle {
+    margin: 0 0 0.5rem 0;
+    color: #111827;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  
+  .formCardDescription {
+    margin: 0 0 0.5rem 0;
+    color: #666;
+    font-size: 0.875rem;
+  }
+  
+  .formCardStatus {
+    background: #28a745;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    display: inline-block;
+  }
+  
+  .formCardStatus.pending {
+    background: #ffc107;
+  }
+  
+  /* ===== FORM CREATION MODAL COMPONENT ===== */
+  .formCreationModalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(31,41,55,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .formCreationModalForm {
+    background: #FFFFFF;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+    min-width: 350px;
+    max-width: 90vw;
+  }
+  
+  .formCreationModalTitle {
+    color: #4F46E5;
+    margin-bottom: 1rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+  
+  .formCreationModalGroup {
+    margin-bottom: 1rem;
+  }
+  
+  .formCreationModalLabel {
+    color: #111827;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  
+  .formCreationModalInput {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    transition: border-color 0.2s ease;
+  }
+  
+  .formCreationModalInput:focus {
+    outline: none;
+    border-color: #4F46E5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+  }
+  
+  .formCreationModalSelect {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    margin-top: 0.25rem;
+    min-height: 80px;
+    font-size: 0.875rem;
+  }
+  
+  .formCreationModalHelpText {
+    color: #6B7280;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+  }
+  
+  .formCreationModalButtonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .formCreationModalButton {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+  }
+  
+  .formCreationModalButton.primary {
+    background: #4F46E5;
+    color: #FFFFFF;
+    padding: 0.5rem 1.5rem;
+  }
+  
+  .formCreationModalButton.primary:hover {
+    background: #4338CA;
+  }
+  
+  .formCreationModalButton.secondary {
+    background: #E5E7EB;
+    color: #111827;
+  }
+  
+  .formCreationModalButton.secondary:hover {
+    background: #D1D5DB;
+  }
+  
+  .formCreationModalButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  /* ===== RESPONSIVE DESIGN ===== */
+  @media (max-width: 768px) {
+    .header {
+      padding: 1rem;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .countyDetailHeader {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: stretch;
+    }
+    
+    .countyDetailFormActions {
+      flex-direction: column;
+    }
+    
+    .formCreationModalForm {
+      margin: 1rem;
+      padding: 1.5rem;
+    }
+    
+    .formCreationModalButtonGroup {
+      flex-direction: column;
+    }
+  }
+  
+  /* ===== UTILITY CLASSES ===== */
+  .textCenter {
+    text-align: center;
+  }
+  
+  .textError {
+    color: #DC2626;
+  }
+  
+  .textSuccess {
+    color: #10B981;
+  }
+  
+  .textMuted {
+    color: #6B7280;
+  }
+  
+  .mb1 {
+    margin-bottom: 0.25rem;
+  }
+  
+  .mb2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  .mb3 {
+    margin-bottom: 0.75rem;
+  }
+  
+  .mb4 {
+    margin-bottom: 1rem;
+  }

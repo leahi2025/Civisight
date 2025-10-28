@@ -8,6 +8,8 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
+
+MADE AUTHENTICATION MORE RELAXED (Daksh)
 """
 import os
 from urllib.parse import urlparse
@@ -36,6 +38,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'accounts',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -44,7 +47,6 @@ INSTALLED_APPS = [
     'counties',
     'states',
     'forms',
-    'accounts',
     'storages',
     'rest_framework',
     'corsheaders'
@@ -63,7 +65,12 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
+    "http://localhost:3002",
+    "http://127.0.0.1:3002",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -98,7 +105,7 @@ RESULT = urlparse(DATABASE_URL)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': RESULT.path.lstrip('/'),
+        'NAME': RESULT.path.decode('utf-8').lstrip('/') if isinstance(RESULT.path, bytes) else RESULT.path.lstrip('/'),
         'USER': RESULT.username,
         'PASSWORD': RESULT.password,
         'HOST': RESULT.hostname,
@@ -184,18 +191,23 @@ AUTHENTICATION_BACKENDS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.SessionAuthentication",
-        # If you have JWT or token auth, add it here
+         "rest_framework.authentication.SessionAuthentication",
+    #     # If you have JWT or token auth, add it here
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+         "rest_framework.permissions.IsAuthenticatedOrReadOnly",\
+         "rest_framework.permissions.AllowAny",
     ],
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
-EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# TODO: add email backend and change to SMTP instead of console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+# EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
