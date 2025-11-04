@@ -23,8 +23,14 @@ function Login() {
     try {
   // Send signin without attaching existing cookies/session to the request.
   // This avoids sending sessionid or other cookies before authentication.
-      await axios.post("/api/signin/", form, { withCredentials: false });
-      navigate("/dashboard") // Changed to navigate to dashboard instead of login
+      const response = await axios.post("/api/signin/", form);
+      const role = response.data.role;
+      if (role === "0") {
+        navigate("/county-dashboard") // Changed to navigate to dashboard instead of login
+      } else {
+        navigate("/county")
+      }
+      
     
     } catch (err) {
       if (err.response) {

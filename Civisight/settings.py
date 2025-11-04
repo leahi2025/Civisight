@@ -44,18 +44,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'corsheaders',
     'counties',
     'states',
     'forms',
-    'storages',
-    'rest_framework',
-    'corsheaders'
+    'storages'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -71,6 +71,11 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3001",
     "http://localhost:3002",
     "http://127.0.0.1:3002",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -196,7 +201,7 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": [
          "rest_framework.permissions.IsAuthenticatedOrReadOnly",\
-         "rest_framework.permissions.AllowAny",
+         "rest_framework.permissions.IsAuthenticated",
     ],
 }
 
@@ -221,3 +226,5 @@ CSRF_COOKIE_SAMESITE = None
     # For local HTTP development (no HTTPS), make Secure=False so browsers accept cookies over HTTP.
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
+
+CSRF_COOKIE_HTTPONLY = False

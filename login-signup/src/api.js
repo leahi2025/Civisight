@@ -8,7 +8,7 @@ axios.defaults.withCredentials = true;
 //axios.defaults.headers.common['X-CSRFToken'] = Cookies.get('csrftoken');
 
 // optional: set a base URL so you don’t repeat it everywhere
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 axios.interceptors.request.use(config => {
   const csrftoken = Cookies.get('csrftoken');
@@ -25,3 +25,7 @@ export default axios;
 export const fetchCounties = (params = {}) => {
   return axios.get('/api/counties/', { params }).then(res => res.data);
 };
+
+export const fetchCountyById = (id, params = {}) => {
+  return axios.get(`/api/counties/${id}/`, { params }).then(res => res.data);
+}

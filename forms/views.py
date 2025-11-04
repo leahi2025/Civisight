@@ -6,7 +6,8 @@ from django.db.models import Q
 from rest_framework.decorators import action
 from rest_framework.decorators import permission_classes as p_classes
 from rest_framework.response import Response
-from django.core.mail import send_mail
+#from django.core.mail import send_mail
+from states.send_emails.send_email import send_email
 from rest_framework.permissions import AllowAny
 from rest_framework.exceptions import ValidationError
 from counties.models import County
@@ -59,11 +60,10 @@ class FormViewSet(viewsets.ModelViewSet):
         user_emails = request.data.get("user_emails", [])
         # filter only those who truly are incomplete for this form
         for u in user_emails:
-            send_mail(
+            send_email(
                 subject=f"Reminder: please complete form #{form.id}",
-                message="Please finish your assigned form.",
-                from_email="no-reply@yourdomain.com",
-                recipient_list=[u],
+                body="Please finish your assigned form.",
+                receiver_email=u,
             )
         return Response({"sent_to": [u for u in user_emails]})
     

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchCounties } from './api';
 import './styles.css';
+import { Link } from 'react-router-dom';
 
 function Sidebar() {
   const menuItems = [
@@ -75,32 +76,34 @@ function CountyDashboard() {
           {!loading && !error && (
             <div className="counties-grid">
               {counties.map(county => (
-                <div key={county.id} className="county-card">
-                  <h3>
-                    <span>📍</span>
-                    {county.name}
-                  </h3>
-                  <div className="county-state">
-                    <span>📍</span> {county.state}
-                  </div>
-                  {county.forms && county.forms.length > 0 && (
-                    <div className="forms-section">
-                      <strong>Form Completion Status</strong>
-                      <ul className="forms-list">
-                        {county.forms.map(f => {
-                          const status = f.status.toLowerCase();
-                          const statusClass = `status-${status.replace(' ', '-')}`;
-                          return (
-                            <li key={f.id}>
-                              <span className="form-name">{f.form?.name || 'Form ' + f.id}</span>
-                              <span className={`form-status ${statusClass}`}>{status}</span>
-                            </li>
-                          );
-                        })}
-                      </ul>
+                <Link to={`/county/${county.id}`} key={county.id} className="county-link">
+                  <div key={county.id} className="county-card">
+                    <h3>
+                      <span>📍</span>
+                      {county.name}
+                    </h3>
+                    <div className="county-state">
+                      <span>📍</span> {county.state}
                     </div>
-                  )}
-                </div>
+                    {county.forms && county.forms.length > 0 && (
+                      <div className="forms-section">
+                        <strong>Form Completion Status</strong>
+                        <ul className="forms-list">
+                          {county.forms.map(f => {
+                            const status = f.status.toLowerCase();
+                            const statusClass = `status-${status.replace(' ', '-')}`;
+                            return (
+                              <li key={f.id}>
+                                <span className="form-name">{f.form?.name || 'Form ' + f.id}</span>
+                                <span className={`form-status ${statusClass}`}>{status}</span>
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </Link>
               ))}
               {counties.length === 0 && 
                 <div className="empty-state">No counties found for your state.</div>

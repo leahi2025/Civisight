@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import County
 from .serializers import CountySerializer
 
@@ -20,7 +20,7 @@ def test_county_view(request):
 class CountyViewSet(viewsets.ModelViewSet):
     queryset = County.objects.all()
     serializer_class = CountySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         """

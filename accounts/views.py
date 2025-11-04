@@ -62,10 +62,12 @@ def signin(request):
             #return render(request, "signin.html", {"error": "Invalid"})
         # Authenticate via our backend
     user = authenticate(request, token=token)
+    
+    user_obj = User.objects.get(email=email)
     if user:
         login(request, user)  # creates a Django session
         request.session["supabase_jwt"] = token
-        return Response({"message": "ok"}, status=status.HTTP_201_CREATED)
+        return Response({"message": "ok", "role": user_obj.role}, status=status.HTTP_201_CREATED)
         #return redirect("dashboard")
 
     return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
