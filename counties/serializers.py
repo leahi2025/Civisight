@@ -12,6 +12,7 @@ class CountyFormDetailSerializer(serializers.ModelSerializer):
 
 class CountySerializer(serializers.ModelSerializer):
     forms = CountyFormDetailSerializer(source='countyform_set', many=True, read_only=True)
+    state = serializers.CharField(source='state.name')
     
     class Meta:
         model = County
