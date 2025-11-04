@@ -2,14 +2,34 @@ import React, { useEffect, useState } from 'react';
 import { fetchCounties } from './api';
 import './styles.css';
 
+function Sidebar() {
+  const menuItems = [
+    { icon: '📊', label: 'Dashboard', active: true },
+    { icon: '👤', label: 'Account' },
+    { icon: '📈', label: 'Insights' },
+    { icon: '⚙️', label: 'Settings' },
+  ];
+
+  return (
+    <div className="sidebar">
+      <div className="logo">Civisight</div>
+      <nav className="nav-menu">
+        {menuItems.map((item) => (
+          <div key={item.label} className={`nav-item ${item.active ? 'active' : ''}`}>
+            <span className="nav-icon">{item.icon}</span>
+            {item.label}
+          </div>
+        ))}
+      </nav>
+    </div>
+  );
+}
+
 function CountyDashboard() {
   const [counties, setCounties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // We expect the frontend to have the user's state stored in localStorage under 'userState'
-  // This is an assumption because the current login/signup flow doesn't persist user profile info.
-  // If your backend returns user info on signin, you can store the state there and read it here.
   const userState = localStorage.getItem('userState');
 
   useEffect(() => {
@@ -17,13 +37,11 @@ function CountyDashboard() {
     setLoading(true);
     setError('');
 
-    // prefer using helper; fall back to axios.get
     const fetcher = () => fetchCounties().then(data => data).catch(err => { throw err; });
 
     fetcher()
       .then(data => {
         if (!isMounted) return;
-        // if the API returns an object with results, attempt to use it
         const list = Array.isArray(data) ? data : data.results || [];
         const filtered = userState ? list.filter(c => String(c.state) === String(userState) || c.state === userState) : list;
         setCounties(filtered);
@@ -40,34 +58,57 @@ function CountyDashboard() {
   }, [userState]);
 
   return (
-    <div style={{ padding: 20 }}>
-      <h1>County Dashboard</h1>
+    <div className="dashboard-container">
+      <Sidebar />
+      <div className="main-content">
+        <header className="dashboard-header">
+          <h1>County Dashboard</h1>
+          <div className="user-profile">
+            <span className="avatar">👤</span>
+          </div>
+        </header>
 
-      {loading && <p>Loading counties...</p>}
-      {error && <div style={{ color: 'red' }}>{error}</div>}
+        <div className="content-area">
+          {loading && <p className="status-message">Loading counties...</p>}
+          {error && <div className="error-message">{error}</div>}
 
-      {!loading && !error && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 12 }}>
-          {counties.map(county => (
-            <div key={county.id} className="login-box" style={{ textAlign: 'left' }}>
-              <h3 style={{ marginTop: 0 }}>{county.name}</h3>
-              <div><strong>ID:</strong> {county.id}</div>
-              <div><strong>State:</strong> {county.state}</div>
-              {county.forms && county.forms.length > 0 && (
-                <div style={{ marginTop: 8 }}>
-                  <strong>Forms:</strong>
-                  <ul>
-                    {county.forms.map(f => (
-                      <li key={f.id}>{f.form?.name || 'Form ' + f.id} — {f.status}</li>
-                    ))}
-                  </ul>
+          {!loading && !error && (
+            <div className="counties-grid">
+              {counties.map(county => (
+                <div key={county.id} className="county-card">
+                  <h3>
+                    <span>📍</span>
+                    {county.name}
+                  </h3>
+                  <div className="county-state">
+                    <span>📍</span> {county.state}
+                  </div>
+                  {county.forms && county.forms.length > 0 && (
+                    <div className="forms-section">
+                      <strong>Form Completion Status</strong>
+                      <ul className="forms-list">
+                        {county.forms.map(f => {
+                          const status = f.status.toLowerCase();
+                          const statusClass = `status-${status.replace(' ', '-')}`;
+                          return (
+                            <li key={f.id}>
+                              <span className="form-name">{f.form?.name || 'Form ' + f.id}</span>
+                              <span className={`form-status ${statusClass}`}>{status}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-              )}
+              ))}
+              {counties.length === 0 && 
+                <div className="empty-state">No counties found for your state.</div>
+              }
             </div>
-          ))}
-          {counties.length === 0 && <div style={{ color: '#666' }}>No counties found for your state.</div>}
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
