@@ -2,29 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { fetchCounties } from './api';
 import './styles.css';
 import { Link } from 'react-router-dom';
+import Sidebar from './Sidebar';
 
-function Sidebar() {
-  const menuItems = [
-    { icon: '📊', label: 'Dashboard', active: true },
-    { icon: '👤', label: 'Account' },
-    { icon: '📈', label: 'Insights' },
-    { icon: '⚙️', label: 'Settings' },
-  ];
-
-  return (
-    <div className="sidebar">
-      <div className="logo">Civisight</div>
-      <nav className="nav-menu">
-        {menuItems.map((item) => (
-          <div key={item.label} className={`nav-item ${item.active ? 'active' : ''}`}>
-            <span className="nav-icon">{item.icon}</span>
-            {item.label}
-          </div>
-        ))}
-      </nav>
-    </div>
-  );
-}
 
 function CountyDashboard() {
   const [counties, setCounties] = useState([]);
