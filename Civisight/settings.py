@@ -177,17 +177,26 @@ STORAGES = {
             # your project’s region (e.g. "us-east-1")
             "region_name": os.getenv("SUPABASE_S3_REGION_NAME"),
             # S3 endpoint for Supabase
-            "endpoint_url": os.getenv("SUPABASE_S3_ENDPOINT_URL")
+            "endpoint_url": os.getenv("SUPABASE_S3_ENDPOINT_URL"),
+            # Ensure compatibility with Supabase S3 API
+            "signature_version": "s3v4",
+            "addressing_style": "path",
+            "use_ssl": True,
         }
     }
 }
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_API_KEY = os.environ["SUPABASE_API_KEY"]
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", SUPABASE_API_KEY)
 SUPABASE_JWKS_URL = os.environ["SUPABASE_JWKS_URL"]
 SUPABASE_JWT_SECRET = os.environ["SUPABASE_JWT_SECRET"]
 
-supabase = create_client(SUPABASE_URL, SUPABASE_API_KEY)
+# Use the service key on the server for Storage writes (anon key may lack insert permissions)
+# Django only exposes UPPERCASE attributes via django.conf.settings, so set an uppercase alias too.
+SUPABASE_CLIENT = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+# Back-compat alias if referenced elsewhere in code
+supabase = SUPABASE_CLIENT
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -208,6 +217,8 @@ REST_FRAMEWORK = {
 
 # TODO: add email backend and change to SMTP instead of console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# (Celery removed) Use the management command `send_reminders` for scheduled reminders.
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'

@@ -9,6 +9,7 @@ function CountyDashboard() {
   const [counties, setCounties] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const userState = localStorage.getItem('userState');
 
@@ -37,6 +38,14 @@ function CountyDashboard() {
     return () => { isMounted = false; };
   }, [userState]);
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const visibleCounties = !normalizedQuery
+    ? counties
+    : counties.filter(c =>
+        (c.name || '').toLowerCase().includes(normalizedQuery) ||
+        (String(c.state) || '').toLowerCase().includes(normalizedQuery)
+      );
+
   return (
     <div className="dashboard-container">
       <Sidebar />
@@ -49,12 +58,21 @@ function CountyDashboard() {
         </header>
 
         <div className="content-area">
+          <div className="search-row">
+            <input
+              className="search-input"
+              type="text"
+              placeholder="Search counties by name or state..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
           {loading && <p className="status-message">Loading counties...</p>}
           {error && <div className="error-message">{error}</div>}
 
           {!loading && !error && (
             <div className="counties-grid">
-              {counties.map(county => (
+              {visibleCounties.map(county => (
                 <Link to={`/county/${county.id}`} key={county.id} className="county-link">
                   <div key={county.id} className="county-card">
                     <h3>
@@ -84,7 +102,7 @@ function CountyDashboard() {
                   </div>
                 </Link>
               ))}
-              {counties.length === 0 && 
+              {visibleCounties.length === 0 && 
                 <div className="empty-state">No counties found for your state.</div>
               }
             </div>

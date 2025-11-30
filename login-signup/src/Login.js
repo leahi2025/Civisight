@@ -26,9 +26,15 @@ function Login() {
       const response = await axios.post("/api/signin/", form);
       const role = response.data.role;
       if (role === "0") {
-        navigate("/county-dashboard") // Changed to navigate to dashboard instead of login
+        navigate("/county-dashboard") // State officials go to dashboard
       } else {
-        navigate("/county")
+        // County officials redirect to their specific county page
+        const countyId = response.data.county_id;
+        if (countyId) {
+          navigate(`/county/${countyId}`);
+        } else {
+          navigate("/county"); // Fallback if no county_id
+        }
       }
       
     

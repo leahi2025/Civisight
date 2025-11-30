@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view, permission_classes
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 from supabase import create_client, create_async_client
@@ -12,6 +12,7 @@ from counties.models import County
 from accounts.models import StateOfficial, CountyOfficial, User
 from django.contrib import messages
 from Civisight.settings import supabase
+from .serializers import AccountSerializer
 
 @csrf_exempt
 @api_view(['POST'])
@@ -67,7 +68,27 @@ def signin(request):
     if user:
         login(request, user)  # creates a Django session
         request.session["supabase_jwt"] = token
-        return Response({"message": "ok", "role": user_obj.role}, status=status.HTTP_201_CREATED)
+        
+        response_data = {"message": "ok", "role": user_obj.role}
+        
+        # If county official, include their county ID
+        if user_obj.role == "1":
+            try:
+                county_official = CountyOfficial.objects.get(email=email)
+                response_data["county_id"] = county_official.county.id
+            except CountyOfficial.DoesNotExist:
+                pass
+        
+        return Response(response_data, status=status.HTTP_201_CREATED)
         #return redirect("dashboard")
 
     return Response({"error": "Invalid email or password."}, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+def account_me(request):
+    """Return the authenticated user's account info (email, user_type)."""
+    if not request.user or not request.user.is_authenticated:
+        return Response({"detail": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+    data = AccountSerializer(request.user).data
+    return Response(data)

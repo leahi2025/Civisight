@@ -9,8 +9,10 @@ def send_email(subject, body, receiver_email):
     password = os.environ['EMAIL_HOST_PASSWORD']
     smtp_server = "smtp.gmail.com" 
     smtp_port = 587 
-    body = str
-    message = MIMEText(body)
+    
+    # Ensure body is a string and handle encoding properly
+    body = str(body) if body is not None else ""
+    message = MIMEText(body, 'plain', 'utf-8')
     message["From"] = sender_email
     message["To"] = receiver_email
     message["Subject"] = subject
