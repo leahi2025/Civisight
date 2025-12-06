@@ -245,7 +245,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 SESSION_COOKIE_SAMESITE = None
 CSRF_COOKIE_SAMESITE = None
     # For local HTTP development (no HTTPS), make Secure=False so browsers accept cookies over HTTP.
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 CSRF_COOKIE_HTTPONLY = False
