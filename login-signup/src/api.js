@@ -8,7 +8,7 @@ axios.defaults.withCredentials = true;
 //axios.defaults.headers.common['X-CSRFToken'] = Cookies.get('csrftoken');
 
 // optional: set a base URL so you don’t repeat it everywhere
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://civisight.onrender.com';
 
 axios.interceptors.request.use(config => {
   const csrftoken = Cookies.get('csrftoken');
