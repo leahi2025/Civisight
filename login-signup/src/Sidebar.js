@@ -11,8 +11,6 @@ function Sidebar() {
   const menuItems = [
     { icon: '📊', label: 'Dashboard', active: true, to: '/county-dashboard' },
     { icon: '👤', label: 'Account', to: '/account' },
-    { icon: '📈', label: 'Insights' },
-    { icon: '⚙️', label: 'Settings' },
   ];
 
   return (
