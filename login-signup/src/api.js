@@ -10,6 +10,10 @@ axios.defaults.withCredentials = true;
 // optional: set a base URL so you don’t repeat it everywhere
 axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://civisight.onrender.com';
 
+// Ensure the CSRF cookie is set for cross-site requests.
+// Make a harmless GET to `/api/csrf/` on module load so Django issues `csrftoken`.
+axios.get('/api/csrf/').catch(() => {});
+
 axios.interceptors.request.use(config => {
   const csrftoken = Cookies.get('csrftoken');
   if (csrftoken) {

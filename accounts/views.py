@@ -1,6 +1,6 @@
 from django.contrib.auth import authenticate, login
 from rest_framework.decorators import api_view, permission_classes
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
@@ -92,3 +92,12 @@ def account_me(request):
         return Response({"detail": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
     data = AccountSerializer(request.user).data
     return Response(data)
+
+
+# Helper endpoint: ensure Django issues a CSRF cookie for cross-site clients.
+# Call this with a simple GET from the frontend before making POST requests.
+@ensure_csrf_cookie
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def ensure_csrf(request):
+    return Response({"detail": "CSRF cookie set"})
