@@ -236,14 +236,28 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-# Development-only: relax SameSite and Secure cookie settings so the frontend dev server
-# (running on a different origin like http://localhost:3000) can send/receive session and CSRF cookies.
-# These are only applied when DEBUG is True.
-    # Allow cross-site cookies for local dev (axios withCredentials will then succeed)
-SESSION_COOKIE_SAMESITE = None
-CSRF_COOKIE_SAMESITE = None
-    # For local HTTP development (no HTTPS), make Secure=False so browsers accept cookies over HTTP.
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+# Cookie configuration
+# You can override the cookie domain by setting COOKIE_DOMAIN in the environment.
+# By default it is set to the backend host so cookies are scoped to that domain.
+COOKIE_DOMAIN = os.getenv('COOKIE_DOMAIN', 'civisight.onrender.com')
+if COOKIE_DOMAIN:
+    if not COOKIE_DOMAIN.startswith('.'):
+        COOKIE_DOMAIN = f'.{COOKIE_DOMAIN}'
+    SESSION_COOKIE_DOMAIN = COOKIE_DOMAIN
+    CSRF_COOKIE_DOMAIN = COOKIE_DOMAIN
+
+# In production we require Secure cookies and explicit SameSite for cross-site use.
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # If your frontend is hosted on a different root domain you may need 'None'
+    SESSION_COOKIE_SAMESITE = None
+    CSRF_COOKIE_SAMESITE = None
+else:
+    # Local development: allow cookies over HTTP and use Lax for safety.
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
 
 CSRF_COOKIE_HTTPONLY = False
