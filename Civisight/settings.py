@@ -81,7 +81,7 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 ALLOWED_HOSTS = [
-    'https://civisight.onrender.com'
+    'civisight.onrender.com'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
