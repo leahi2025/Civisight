@@ -8,7 +8,11 @@ axios.defaults.withCredentials = true;
 //axios.defaults.headers.common['X-CSRFToken'] = Cookies.get('csrftoken');
 
 // optional: set a base URL so you don’t repeat it everywhere
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://127.0.0.1:8000';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'https://civisight.onrender.com';
+
+// Ensure the CSRF cookie is set for cross-site requests.
+// Make a harmless GET to `/api/csrf/` on module load so Django issues `csrftoken`.
+axios.get('/api/csrf/').catch(() => {});
 
 axios.interceptors.request.use(config => {
   const csrftoken = Cookies.get('csrftoken');
@@ -20,3 +24,12 @@ axios.interceptors.request.use(config => {
 
 
 export default axios;
+
+// Helper: fetch counties (returns promise resolving to array of counties)
+export const fetchCounties = (params = {}) => {
+  return axios.get('/api/counties/', { params }).then(res => res.data);
+};
+
+export const fetchCountyById = (id, params = {}) => {
+  return axios.get(`/api/counties/${id}/`, { params }).then(res => res.data);
+}

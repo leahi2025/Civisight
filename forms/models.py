@@ -20,6 +20,9 @@ class Form(models.Model):
                             ], null=True, blank=True)
 
     is_completed = models.BooleanField(default=False)
+    notify_every = models.IntegerField(default=7)
+    next_notify_date = models.DateTimeField(null=True, blank=True)
+    url = models.CharField(max_length=200, null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
 # CountyForm tracks assignments of that form to specific counties, including status, timestamps, and per-county progress

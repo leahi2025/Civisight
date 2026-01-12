@@ -6,7 +6,7 @@ class IsStateOfficial(permissions.BasePermission):
         return (
             request.user and
             request.user.is_authenticated and
-            request.user.role == "state"
+            str(request.user.role) == "0"
         )
 
 
@@ -15,7 +15,7 @@ class IsCountyOfficial(permissions.BasePermission):
         return (
             request.user and
             request.user.is_authenticated and
-            request.user.role == "county"
+            str(request.user.role) == "1"
         )
 
 

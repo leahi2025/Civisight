@@ -21,8 +21,22 @@ function Login() {
     e.preventDefault();
 
     try {
-      const res = await axios.post("/api/signin/", form);
-      navigate("/login") // Changed to navigate to dashboard instead of login
+  // Send signin without attaching existing cookies/session to the request.
+  // This avoids sending sessionid or other cookies before authentication.
+      const response = await axios.post("/api/signin/", form);
+      const role = response.data.role;
+      if (role === "0") {
+        navigate("/county-dashboard") // State officials go to dashboard
+      } else {
+        // County officials redirect to their specific county page
+        const countyId = response.data.county_id;
+        if (countyId) {
+          navigate(`/county/${countyId}`);
+        } else {
+          navigate("/county"); // Fallback if no county_id
+        }
+      }
+      
     
     } catch (err) {
       if (err.response) {

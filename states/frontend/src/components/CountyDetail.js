@@ -9,17 +9,8 @@ import './StyleComponents.css';
 
 const CountyDetail = ({ county, onBack, onCreateForm, onSendReminders, sendingReminders }) => {
   const handleSendReminders = (formId) => {
-    if (county.email) {
-      onSendReminders(formId, [county.email]);
-    } else {
-      alert('No email found for this county.');
-    }
-    // TODO: add reminder email functionality for incomplete users
-    // if (form.incomplete_user_ids && form.incomplete_user_ids.length > 0) {
-    //   onSendReminders(form.id, form.incomplete_user_ids);
-    // } else {
-    //   alert('No incomplete users found for this form.');
-    // }
+    // Send reminder to all county officials in this county
+    onSendReminders(formId, county.id);
   };
 
   const formatDueDate = (dateString) => {
@@ -60,8 +51,8 @@ const CountyDetail = ({ county, onBack, onCreateForm, onSendReminders, sendingRe
       <div key={countyForm.id} className="countyDetailFormCard">
         <div className="countyDetailFormHeader">
           <h4 className="countyDetailFormTitle">{countyForm.form.name}</h4>
-          <span className={`countyDetailFormStatus ${countyForm.form.is_completed ? '' : 'pending'}`}>
-            {countyForm.form.is_completed ? 'Completed' : 'Pending'}
+          <span className={`countyDetailFormStatus ${countyForm.status === 'completed' ? '' : 'pending'}`}>
+            {countyForm.status === 'completed' ? 'Completed' : countyForm.status === 'in_progress' ? 'In Progress' : 'Pending'}
           </span>
         </div>
         
@@ -73,7 +64,7 @@ const CountyDetail = ({ county, onBack, onCreateForm, onSendReminders, sendingRe
 
         {/* Add Send Reminder Button */}
         <div className="countyDetailFormActions">
-          {!countyForm.form.is_completed && (
+          {countyForm.status !== 'completed' && (
             <button
               onClick={() => handleSendReminders(countyForm.form.id)}
               disabled={sendingReminders}

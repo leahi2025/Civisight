@@ -18,6 +18,8 @@ const FormCreationModal = ({
   setFormDescription, 
   formDueDate,
   setFormDueDate,
+  notifyEvery,
+  setNotifyEvery,
   selectedCountiesForForm, 
   setSelectedCountiesForForm, 
   counties, 
@@ -70,6 +72,16 @@ const FormCreationModal = ({
             value={formDueDate}
             onChange={e => setFormDueDate(e.target.value)}
             required
+            className="formCreationModalInput"
+          />
+        </div>
+        <div className="formCreationModalGroup">
+          <label className="formCreationModalLabel">Notify every (days)</label>
+          <input
+            type="number"
+            min={0}
+            value={notifyEvery}
+            onChange={e => setNotifyEvery(Number(e.target.value))}
             className="formCreationModalInput"
           />
         </div>

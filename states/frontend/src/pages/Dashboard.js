@@ -26,6 +26,7 @@ const Dashboard = () => {
   const [formTitle, setFormTitle] = useState('');
   const [formDescription, setFormDescription] = useState('');
   const [formDueDate, setFormDueDate] = useState('');
+  const [notifyEvery, setNotifyEvery] = useState(7);
   const [selectedCountiesForForm, setSelectedCountiesForForm] = useState([]);
   const [creatingForm, setCreatingForm] = useState(false);
   const [creatingCounty, setCreatingCounty] = useState(false);
@@ -98,6 +99,7 @@ const Dashboard = () => {
         description: formDescription,
         finish_by: formDueDate,
         counties: selectedCountiesForForm,
+        notify_every: notifyEvery,
       });
       resetFormState();
       fetchCounties();
@@ -122,6 +124,7 @@ const Dashboard = () => {
         description: formDescription,
         finish_by: formDueDate,
         counties: [selectedCountyForForm.id],
+        notify_every: notifyEvery,
       });
       resetCountyFormState();
       fetchCounties();
@@ -132,15 +135,18 @@ const Dashboard = () => {
     }
   };
 
-  const handleSendReminders = async (formId, userEmails) => {
+  const handleSendReminders = async (formId, countyId) => {
     setSendingReminders(true);
     try {
-      await api.post(`forms/${formId}/remind/`, {
-        user_emails: userEmails
+      const response = await api.post(`forms/${formId}/remind/`, {
+        county_id: countyId
       });
-      alert('Reminder emails sent successfully!');
+      const message = response.data?.message || 'Reminder emails sent successfully!';
+      const sentTo = response.data?.sent_to || [];
+      alert(`${message}\nEmails sent to: ${sentTo.join(', ')}`);
     } catch (err) {
-      alert('Failed to send reminder emails: ' + err.message);
+      const errorMsg = err.response?.data?.error || err.message;
+      alert('Failed to send reminder emails: ' + errorMsg);
     } finally {
       setSendingReminders(false);
     }
@@ -151,6 +157,7 @@ const Dashboard = () => {
     setFormDescription('');
     setFormDueDate('');
     setSelectedCountiesForForm([]);
+    setNotifyEvery(7);
     setShowGlobalForm(false);
   };
 
@@ -159,6 +166,7 @@ const Dashboard = () => {
     setFormDescription('');
     setFormDueDate('');
     setSelectedCountyForForm(null);
+    setNotifyEvery(7);
     setShowCountyForm(false);
   };
 
@@ -205,6 +213,8 @@ const Dashboard = () => {
         setFormDescription={setFormDescription}
         formDueDate={formDueDate}
         setFormDueDate={setFormDueDate}
+        notifyEvery={notifyEvery}
+        setNotifyEvery={setNotifyEvery}
         selectedCountiesForForm={selectedCountiesForForm}
         setSelectedCountiesForForm={setSelectedCountiesForForm}
         counties={counties}
@@ -225,6 +235,8 @@ const Dashboard = () => {
         setFormDueDate={setFormDueDate}
         selectedCountiesForForm={selectedCountyForForm ? [selectedCountyForForm.id] : []}
         setSelectedCountiesForForm={() => {}}
+        notifyEvery={notifyEvery}
+        setNotifyEvery={setNotifyEvery}
         counties={counties}
         creatingForm={creatingForm}
         title={`Create Form for ${selectedCountyForForm?.name || 'County'}`}

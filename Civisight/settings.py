@@ -30,9 +30,7 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = 'django-insecure-obzlt8+y5t+o1^!%8z_&j*#c30(4ee-gg&3u(%$f7b#z8p!2za'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
+DEBUG = False
 
 # Application definition
 
@@ -44,18 +42,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'corsheaders',
     'counties',
     'states',
     'forms',
-    'storages',
-    'rest_framework',
-    'corsheaders'
+    'storages'
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -71,6 +69,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3001",
     "http://localhost:3002",
     "http://127.0.0.1:3002",
+    "https://civisight-nine.vercel.app"
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://civisight-nine.vercel.app'
+]
+
+ALLOWED_HOSTS = [
+    'civisight.onrender.com'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -153,6 +162,10 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# Directory where `collectstatic` will collect static files for production
+# Use a folder at the project root named `staticfiles`.
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 AUTH_USER_MODEL = 'accounts.User'
 
 STORAGES = {
@@ -172,17 +185,26 @@ STORAGES = {
             # your project’s region (e.g. "us-east-1")
             "region_name": os.getenv("SUPABASE_S3_REGION_NAME"),
             # S3 endpoint for Supabase
-            "endpoint_url": os.getenv("SUPABASE_S3_ENDPOINT_URL")
+            "endpoint_url": os.getenv("SUPABASE_S3_ENDPOINT_URL"),
+            # Ensure compatibility with Supabase S3 API
+            "signature_version": "s3v4",
+            "addressing_style": "path",
+            "use_ssl": True,
         }
     }
 }
 
 SUPABASE_URL = os.environ["SUPABASE_URL"]
 SUPABASE_API_KEY = os.environ["SUPABASE_API_KEY"]
+SUPABASE_SERVICE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", SUPABASE_API_KEY)
 SUPABASE_JWKS_URL = os.environ["SUPABASE_JWKS_URL"]
 SUPABASE_JWT_SECRET = os.environ["SUPABASE_JWT_SECRET"]
 
-supabase = create_client(SUPABASE_URL, SUPABASE_API_KEY)
+# Use the service key on the server for Storage writes (anon key may lack insert permissions)
+# Django only exposes UPPERCASE attributes via django.conf.settings, so set an uppercase alias too.
+SUPABASE_CLIENT = create_client(SUPABASE_URL, SUPABASE_SERVICE_KEY)
+# Back-compat alias if referenced elsewhere in code
+supabase = SUPABASE_CLIENT
 
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
@@ -196,13 +218,15 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PERMISSION_CLASSES": [
          "rest_framework.permissions.IsAuthenticatedOrReadOnly",\
-         "rest_framework.permissions.AllowAny",
+         "rest_framework.permissions.IsAuthenticated",
     ],
 }
 
 
 # TODO: add email backend and change to SMTP instead of console
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# (Celery removed) Use the management command `send_reminders` for scheduled reminders.
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
@@ -211,3 +235,29 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
 # EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Cookie configuration
+# You can override the cookie domain by setting COOKIE_DOMAIN in the environment.
+# By default it is set to the backend host so cookies are scoped to that domain.
+COOKIE_DOMAIN = os.getenv('COOKIE_DOMAIN', 'civisight.onrender.com')
+if COOKIE_DOMAIN:
+    if not COOKIE_DOMAIN.startswith('.'):
+        COOKIE_DOMAIN = f'.{COOKIE_DOMAIN}'
+    SESSION_COOKIE_DOMAIN = COOKIE_DOMAIN
+    CSRF_COOKIE_DOMAIN = COOKIE_DOMAIN
+
+# In production we require Secure cookies and explicit SameSite for cross-site use.
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # If your frontend is hosted on a different root domain you may need 'None'
+    SESSION_COOKIE_SAMESITE = None
+    CSRF_COOKIE_SAMESITE = None
+else:
+    # Local development: allow cookies over HTTP and use Lax for safety.
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SAMESITE = 'Lax'
+    CSRF_COOKIE_SAMESITE = 'Lax'
+
+CSRF_COOKIE_HTTPONLY = False
