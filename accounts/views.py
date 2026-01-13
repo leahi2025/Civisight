@@ -39,8 +39,11 @@ def signup(request):
         CountyOfficial.objects.create_user(username=username, email=email, password=password, county=county)
 
     
-    
-    result = supabase.auth.sign_up({"email": email, "password": password})
+    try:
+        result = supabase.auth.sign_up({"email": email, "password": password})
+    except Exception as e:
+        User.objects.filter(email=email).delete()
+        return Response({"error": f"Failed to create account: {e} Please try again."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({"message": "ok"}, status=status.HTTP_201_CREATED)
         #return redirect("login")
     #return render(request, "signup.html")
