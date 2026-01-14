@@ -4,6 +4,22 @@ from accounts.models import CountyOfficial
 from .models import CountyForm
 from django.conf import settings
 import os
+from counties.models import County
+
+
+class CountyBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = County
+        fields = ("id", "name")
+
+
+class CountyFormStatusSerializer(serializers.ModelSerializer):
+    county_id = serializers.IntegerField(source='county.id')
+    county_name = serializers.CharField(source='county.name')
+
+    class Meta:
+        model = CountyForm
+        fields = ("id", "county_id", "county_name", "status", "created_at", "updated_at")
 
 
 
@@ -15,12 +31,17 @@ class FormSerializer(serializers.ModelSerializer):
     #     source="countyofficial_incomplete"
     # )
     resolved_url = serializers.SerializerMethodField()
+    county_statuses = serializers.SerializerMethodField()
 
     class Meta:
         model = Form
         fields = [
             "name",
             "id",
+            # allow clients to submit a list of county ids to assign this form to
+            "counties",
+            "counties_details",
+            "county_statuses",
             "date_uploaded",
             "finish_by",
             "file",
@@ -33,6 +54,11 @@ class FormSerializer(serializers.ModelSerializer):
             # "incomplete_user_ids"
         ]
         read_only_fields = ["date_uploaded"]
+
+    # Accept a list of county ids on create/update
+    counties = serializers.PrimaryKeyRelatedField(queryset=County.objects.all(), many=True, required=False)
+    # Provide a read-only resolved list of county objects for convenience
+    counties_details = serializers.SerializerMethodField()
 
     def get_resolved_url(self, obj):
         # If already full URL, return it
@@ -63,6 +89,28 @@ class FormSerializer(serializers.ModelSerializer):
                 return getattr(pub, 'public_url', None) or str(pub)
             except Exception:
                 return None
+
+    def get_counties_details(self, obj):
+        # return a list of {id,name} for assigned counties
+        try:
+            qs = obj.counties.all()
+            return CountyBriefSerializer(qs, many=True).data
+        except Exception:
+            return []
+
+    def get_county_statuses(self, obj):
+        # return a list of county statuses for this form
+        try:
+            county_forms = CountyForm.objects.filter(form=obj)
+            return CountyFormStatusSerializer(county_forms, many=True).data
+        except Exception:
+            return []
+
+    def to_representation(self, instance):
+        # include default fields then inject counties_details for read operations
+        data = super().to_representation(instance)
+        data["counties"] = self.get_counties_details(instance)
+        return data
 
 class CountyFormSerializer(serializers.ModelSerializer):
     class Meta:

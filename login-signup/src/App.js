@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import axios from './api';
 import Login from './Login';
@@ -6,6 +6,7 @@ import Signup from './Signup';
 import County from './County';
 import CountyDashboard from './CountyDashboard';
 import Account from './Account';
+import FormsInsights from './FormsInsights';
 
 function App() {
   return (
@@ -15,12 +16,50 @@ function App() {
         <Route path="/" element={<StartupRedirect />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/county-dashboard" element={<CountyDashboard />} />
+        <Route path="/county-dashboard" element={<CountyDashboardWrapper />} />
+        <Route path="/forms-insights" element={<FormsInsights />} />
         <Route path="/account" element={<Account />} />
         <Route path="/county/:id" element={<County />} />
       </Routes>
     </Router>
   );
+}
+
+// Wrapper that redirects county officials to their county page
+function CountyDashboardWrapper() {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [shouldRender, setShouldRender] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    axios.get('/api/account/me/')
+      .then(res => {
+        if (!mounted) return;
+        const data = res.data || {};
+        if (data.user_type === 'county' && data.county_id) {
+          // Redirect county officials to their county page
+          navigate(`/county/${data.county_id}`, { replace: true });
+        } else {
+          // State officials can view the dashboard
+          setShouldRender(true);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (mounted) {
+          setShouldRender(true);
+          setLoading(false);
+        }
+      });
+    return () => { mounted = false; };
+  }, [navigate]);
+
+  if (loading && !shouldRender) {
+    return <div style={{ padding: 40 }}>Loading...</div>;
+  }
+
+  return <CountyDashboard />;
 }
 
 function StartupRedirect() {

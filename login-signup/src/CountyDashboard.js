@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchCounties } from './api';
 import './styles.css';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Sidebar from './Sidebar';
 
 
@@ -10,6 +10,8 @@ function CountyDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCounty, setSelectedCounty] = useState(null);
+  const navigate = useNavigate();
 
   const userState = localStorage.getItem('userState');
 
@@ -53,7 +55,7 @@ function CountyDashboard() {
         <header className="dashboard-header">
           <h1>County Dashboard</h1>
           <div className="user-profile">
-            <span className="avatar">👤</span>
+            <span className="avatar">U</span>
           </div>
         </header>
 
@@ -72,36 +74,67 @@ function CountyDashboard() {
 
           {!loading && !error && (
             <div className="counties-grid">
-              {visibleCounties.map(county => (
-                <Link to={`/county/${county.id}`} key={county.id} className="county-link">
-                  <div key={county.id} className="county-card">
-                    <h3>
-                      <span>📍</span>
-                      {county.name}
-                    </h3>
-                    <div className="county-state">
-                      <span>📍</span> {county.state}
+              {visibleCounties.map(county => {
+                const isExpanded = selectedCounty === county.id;
+                return (
+                  <div key={county.id} className="county-card-wrapper">
+                    <div 
+                      className={`county-card ${isExpanded ? 'expanded' : ''}`}
+                      onClick={() => setSelectedCounty(isExpanded ? null : county.id)}
+                    >
+                      <h3>{county.name}</h3>
+                      <div className="county-state">
+                        <strong>State:</strong> {county.state}
+                      </div>
+                      {!isExpanded && county.forms && county.forms.length > 0 && (
+                        <div className="county-card-hint">
+                          {county.forms.length} form{county.forms.length !== 1 ? 's' : ''} assigned
+                        </div>
+                      )}
                     </div>
-                    {county.forms && county.forms.length > 0 && (
-                      <div className="forms-section">
-                        <strong>Form Completion Status</strong>
-                        <ul className="forms-list">
-                          {county.forms.map(f => {
-                            const status = f.status.toLowerCase();
-                            const statusClass = `status-${status.replace(' ', '-')}`;
-                            return (
-                              <li key={f.id}>
-                                <span className="form-name">{f.form?.name || 'Form ' + f.id}</span>
-                                <span className={`form-status ${statusClass}`}>{status}</span>
-                              </li>
-                            );
-                          })}
-                        </ul>
+                    {isExpanded && (
+                      <div className="county-expanded-content">
+                        <button 
+                          className="open-county-btn"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/county/${county.id}`);
+                          }}
+                        >
+                          Open County Page
+                        </button>
+                        {county.forms && county.forms.length > 0 ? (
+                          <div className="forms-section">
+                            <strong>Form Completion Status</strong>
+                            <ul className="forms-list">
+                              {county.forms.map(f => {
+                                const status = f.status.toLowerCase();
+                                const statusClass = `status-${status.replace(' ', '-')}`;
+                                const formId = f.form?.id || f.id;
+                                return (
+                                  <li 
+                                    key={f.id} 
+                                    className="form-list-item-clickable"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      navigate(`/forms-insights?formId=${formId}`);
+                                    }}
+                                  >
+                                    <span className="form-name">{f.form?.name || 'Form ' + f.id}</span>
+                                    <span className={`form-status ${statusClass}`}>{status}</span>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        ) : (
+                          <p className="no-forms-message">No forms assigned to this county.</p>
+                        )}
                       </div>
                     )}
                   </div>
-                </Link>
-              ))}
+                );
+              })}
               {visibleCounties.length === 0 && 
                 <div className="empty-state">No counties found for your state.</div>
               }

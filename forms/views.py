@@ -35,9 +35,14 @@ class FormViewSet(viewsets.ModelViewSet):
         return qs
     
     def create(self, request, *args, **kwargs):
-        # Work with a mutable copy and safely extract county IDs without mutating request.data
-        data = request.data.copy()
-
+        # Build a clean data dict manually - do NOT use request.data.copy() 
+        # because it fails with pickle errors when files are present
+        data = {}
+        for key in request.data:
+            if key not in ('file', 'counties'):  # Skip file and counties, handled separately
+                val = request.data.get(key)
+                data[key] = val
+        
         # Extract counties IDs from the incoming data (supports QueryDict, list, single value)
         counties_list = []
         getlist = getattr(request.data, 'getlist', None)
@@ -100,12 +105,6 @@ class FormViewSet(viewsets.ModelViewSet):
                     if err:
                         raise RuntimeError(f"Supabase upload error: {err}")
 
-                # Ensure form.file isn't saved to default storage; rely on URL field instead
-                if 'file' in data:
-                    try:
-                        del data['file']
-                    except Exception:
-                        pass
                 # Store the object key in url; serializer will expose a resolved URL
                 data['url'] = unique_name
             except Exception as e:
@@ -117,20 +116,12 @@ class FormViewSet(viewsets.ModelViewSet):
                     "object": unique_name if 'unique_name' in locals() else None,
                 }, status=500)
 
-        # Remove 'counties' key from data passed to serializer to avoid unknown field errors
-        if 'counties' in data:
-            try:
-                del data['counties']
-            except Exception:
-                pass
-
-        # Create the form using sanitized data
+        # Create the form using sanitized data (file and counties already excluded)
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         form = serializer.save()
         # If the form is marked completed, ensure next_notify_date is cleared
         try:
-            from django.utils import timezone
             from datetime import timedelta
             if form.is_completed:
                 if form.next_notify_date is not None:

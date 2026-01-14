@@ -24,6 +24,8 @@ class Form(models.Model):
     next_notify_date = models.DateTimeField(null=True, blank=True)
     url = models.CharField(max_length=200, null=True, blank=True)
     completed_at = models.DateTimeField(null=True, blank=True)
+    # allow a form to be assigned to multiple counties via the CountyForm through model
+    counties = models.ManyToManyField(County, through='CountyForm', related_name='forms', blank=True)
 
 # CountyForm tracks assignments of that form to specific counties, including status, timestamps, and per-county progress
 class CountyForm(models.Model):
@@ -39,6 +41,9 @@ class CountyForm(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('county', 'form')
 
     def __str__(self):
         # What shows up in the admin and shell when you print a CountyForm

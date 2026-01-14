@@ -16,15 +16,6 @@ function County() {
   const [error, setError] = useState('');
 
   // Add Form UI state
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [formName, setFormName] = useState('');
-  const [finishBy, setFinishBy] = useState(''); // datetime-local string
-  const [notifyEvery, setNotifyEvery] = useState(7);
-  const [useFile, setUseFile] = useState(true);
-  const [file, setFile] = useState(null);
-  const [url, setUrl] = useState('');
-  const [submitError, setSubmitError] = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [selectedForm, setSelectedForm] = useState(null); // CountyForm record selected
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [sendingReminders, setSendingReminders] = useState(false);
@@ -58,50 +49,6 @@ function County() {
     fetchCounty();
   }, [id]);
 
-  const resetAddForm = () => {
-    setFormName('');
-    setFinishBy('');
-    setUseFile(true);
-    setFile(null);
-    setUrl('');
-    setSubmitError('');
-    setNotifyEvery(7);
-  };
-
-  const handleCreateForm = async (e) => {
-    e.preventDefault();
-    setSubmitError('');
-    if (!formName || !finishBy || (!useFile && !url) || (useFile && !file)) {
-      setSubmitError('Please provide name, finish by, and either a file or a URL.');
-      return;
-    }
-    try {
-      setSubmitting(true);
-      const fd = new FormData();
-      fd.append('name', formName);
-      // Convert datetime-local (YYYY-MM-DDTHH:mm) to ISO 8601 string; let backend parse
-      // Many backends accept the raw value; if needed, new Date(finishBy).toISOString()
-      fd.append('finish_by', finishBy);
-      fd.append('counties', id);
-      fd.append('notify_every', notifyEvery);
-      if (useFile) {
-        fd.append('file', file);
-      } else {
-        fd.append('url', url);
-      }
-      await axios.post('/api/forms/', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      // Refresh county details to show new form linkage
-      const data = await fetchCountyById(id);
-      setCounty(data);
-      resetAddForm();
-      setShowAddForm(false);
-    } catch (err) {
-      console.error('Create form failed', err);
-      setSubmitError(err.response?.data?.error || 'Failed to create form');
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   const handleSelectForm = (cf) => {
     setSelectedForm(cf);
@@ -159,74 +106,12 @@ function County() {
         <header className="dashboard-header">
           <h1>{county ? county.name : 'County Details'}</h1>
           <div className="user-profile">
-            <span className="avatar">👤</span>
+            <span className="avatar">U</span>
           </div>
         </header>
 
+
         <div className="content-area">
-          {/* Add Form Panel */}
-          <div className="county-card" style={{ marginBottom: 16 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-              <h3 style={{ margin: 0 }}>Add Form</h3>
-              <button className="btn" onClick={() => { setShowAddForm((v) => !v); if (!showAddForm) resetAddForm(); }}>
-                {showAddForm ? 'Close' : 'New Form'}
-              </button>
-            </div>
-            {showAddForm && (
-              <form onSubmit={handleCreateForm} style={{ marginTop: 12 }}>
-                <div style={{ display:'grid', gap:12 }}>
-                  <input
-                    className="input-style"
-                    type="text"
-                    placeholder="Form name"
-                    value={formName}
-                    onChange={(e) => setFormName(e.target.value)}
-                  />
-                  <label style={{ color:'#374151', fontSize:14 }}>Finish by</label>
-                  <input
-                    className="input-style"
-                    type="datetime-local"
-                    value={finishBy}
-                    onChange={(e) => setFinishBy(e.target.value)}
-                  />
-                  <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-                    <label><input type="radio" name="uploadType" checked={useFile} onChange={() => setUseFile(true)} /> File</label>
-                    <label><input type="radio" name="uploadType" checked={!useFile} onChange={() => setUseFile(false)} /> URL</label>
-                  </div>
-                  {useFile ? (
-                    <input
-                      className="input-style"
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={(e) => setFile(e.target.files?.[0] || null)}
-                    />
-                  ) : (
-                    <input
-                      className="input-style"
-                      type="url"
-                      placeholder="https://example.com/form"
-                      value={url}
-                      onChange={(e) => setUrl(e.target.value)}
-                    />
-                  )}
-                  <label style={{ color:'#374151', fontSize:14 }}>Notify every (days)</label>
-                  <input
-                    className="input-style"
-                    type="number"
-                    min={0}
-                    value={notifyEvery}
-                    onChange={(e) => setNotifyEvery(Number(e.target.value))}
-                  />
-                  {submitError && <div className="error-message">{submitError}</div>}
-                  <div>
-                    <button type="submit" className="btn" disabled={submitting}>
-                      {submitting ? 'Creating...' : 'Create Form'}
-                    </button>
-                  </div>
-                </div>
-              </form>
-            )}
-          </div>
           {/* Place the loading/error/content logic here */}
           {loading && <p className="status-message">Loading county details...</p>}
           
@@ -242,7 +127,7 @@ function County() {
               <h3>{county.name}</h3>
               
               <div className="county-state">
-                  <span>📍</span> {county.state || 'N/A'}
+                  <strong>State:</strong> {county.state || 'N/A'}
               </div>
           
               {county.forms && county.forms.length > 0 ? (
@@ -285,7 +170,7 @@ function County() {
                               }}
                               disabled={sendingReminders}
                             >
-                              {sendingReminders ? '...' : '📧 Remind'}
+                              {sendingReminders ? '...' : 'Remind'}
                             </button>
                           )}
                         </li>

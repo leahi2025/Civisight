@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from './api';
 // We also import the styles here so the sidebar is styled
 import './styles.css'; 
 
@@ -9,9 +10,22 @@ import './styles.css';
 function Sidebar() {
   const navigate = useNavigate();
   const menuItems = [
-    { icon: '📊', label: 'Dashboard', active: true, to: '/county-dashboard' },
-    { icon: '👤', label: 'Account', to: '/account' },
+    { label: 'Dashboard', to: '/county-dashboard' },
+    { label: 'Insights', to: '/forms-insights' },
+    { label: 'Account', to: '/account' },
   ];
+  const handleSignOut = async () => {
+    try {
+      await axios.post('/api/signout/');
+    } catch (err) {
+      // ignore errors; proceed to client-side redirect
+    } finally {
+      // navigate to login and reload app state
+      navigate('/login');
+      // optional: force a reload to clear any client state
+      try { window.location.reload(); } catch (e) {}
+    }
+  };
 
   return (
     <div className="sidebar">
@@ -20,17 +34,28 @@ function Sidebar() {
         {menuItems.map((item) => (
           <div
             key={item.label}
-            className={`nav-item ${item.active ? 'active' : ''}`}
+            className="nav-item"
             onClick={() => item.to && navigate(item.to)}
             role="button"
             tabIndex={0}
             onKeyDown={(e) => { if (e.key === 'Enter' && item.to) navigate(item.to); }}
           >
-            <span className="nav-icon">{item.icon}</span>
             {item.label}
           </div>
         ))}
       </nav>
+
+      <div className="nav-footer">
+        <div
+          className="nav-item signout"
+          onClick={handleSignOut}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => { if (e.key === 'Enter') handleSignOut(); }}
+        >
+          Sign out
+        </div>
+      </div>
     </div>
   );
 }

@@ -44,13 +44,13 @@ function Account() {
       <div className="main-content">
         <header className="dashboard-header">
           <h1>Account</h1>
-          <div className="user-profile"><span className="avatar">👤</span></div>
+          <div className="user-profile"><span className="avatar">U</span></div>
         </header>
         <div className="content-area">
           <div className="county-card" style={{maxWidth: 520}}>
             <h3>My Account</h3>
-            <div className="county-state"><span>📧</span> {data?.email}</div>
-            <div className="county-state"><span>🛂</span> {data?.user_type}</div>
+            <div className="county-state"><strong>Email:</strong> {data?.email}</div>
+            <div className="county-state"><strong>Role:</strong> {data?.user_type}</div>
           </div>
         </div>
       </div>

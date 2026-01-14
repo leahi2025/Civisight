@@ -144,7 +144,7 @@ const CountyCreationModal = ({
             margin: 0,
             fontWeight: '500'
           }}>
-            🏛️ This county will be associated with your state agency
+            This county will be associated with your state agency
           </p>
         </div>
 

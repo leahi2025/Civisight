@@ -30,7 +30,7 @@ load_dotenv(BASE_DIR / ".env")
 SECRET_KEY = 'django-insecure-obzlt8+y5t+o1^!%8z_&j*#c30(4ee-gg&3u(%$f7b#z8p!2za'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 # Application definition
 
@@ -79,7 +79,8 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 ALLOWED_HOSTS = [
-    'civisight.onrender.com'
+    'civisight.onrender.com',
+    'localhost'
 ]
 
 CORS_ALLOW_CREDENTIALS = True
