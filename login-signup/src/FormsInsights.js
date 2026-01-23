@@ -502,15 +502,28 @@ function FormsInsights() {
                                       {cs.status === 'completed' ? 'Completed' : cs.status === 'in_progress' ? 'In Progress' : 'Pending'}
                                     </span>
                                   </div>
-                                  {cs.status !== 'completed' && (
-                                    <button
-                                      className="btn btn-small btn-outline"
-                                      onClick={() => sendReminder(f.id, cs.county_id, cs.county_name)}
-                                      disabled={sendingReminder === cs.county_id}
-                                    >
-                                      {sendingReminder === cs.county_id ? 'Sending...' : 'Remind'}
-                                    </button>
-                                  )}
+                                  <div className="county-status-actions">
+                                    {cs.status === 'completed' && cs.completed_file_url && (
+                                      <a
+                                        className="btn btn-small btn-outline"
+                                        href={`${axios.defaults.baseURL}/api/forms/county-forms/${cs.id}/completed-file/`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        style={{ textDecoration: 'none' }}
+                                      >
+                                        View File
+                                      </a>
+                                    )}
+                                    {cs.status !== 'completed' && (
+                                      <button
+                                        className="btn btn-small btn-outline"
+                                        onClick={() => sendReminder(f.id, cs.county_id, cs.county_name)}
+                                        disabled={sendingReminder === cs.county_id}
+                                      >
+                                        {sendingReminder === cs.county_id ? 'Sending...' : 'Remind'}
+                                      </button>
+                                    )}
+                                  </div>
                                 </div>
                               ))}
                             </div>

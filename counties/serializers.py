@@ -8,7 +8,7 @@ class CountyFormDetailSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CountyForm
-        fields = ['id', 'form', 'status', 'created_at', 'updated_at']
+        fields = ['id', 'form', 'status', 'completed_file_url', 'created_at', 'updated_at']
 
 class CountySerializer(serializers.ModelSerializer):
     forms = CountyFormDetailSerializer(source='countyform_set', many=True, read_only=True)

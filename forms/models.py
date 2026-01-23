@@ -38,6 +38,7 @@ class CountyForm(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     county = models.ForeignKey(County, on_delete=models.CASCADE)
     form = models.ForeignKey(Form, on_delete=models.CASCADE)
+    completed_file_url = models.CharField(max_length=200, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

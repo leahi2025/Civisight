@@ -60,6 +60,7 @@ class FormViewSet(viewsets.ModelViewSet):
         file_obj = request.FILES.get('file')
         if file_obj is not None:
             try:
+                # Use the 'forms' bucket for form templates (not completed_forms)
                 bucket = os.getenv('SUPABASE_S3_BUCKET_NAME') or 'forms'
                 # Build date-based path: YYYY/MM/DD/safe-name-<uuid><ext>
                 today = timezone.now()
@@ -155,17 +156,68 @@ class FormViewSet(viewsets.ModelViewSet):
         
         return Response(serializer.data, status=201)
 
+    def update(self, request, *args, **kwargs):
+        """
+        Override update to handle counties properly via CountyForm through model.
+        """
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        
+        # Extract counties from request data before passing to serializer
+        counties_list = []
+        getlist = getattr(request.data, 'getlist', None)
+        if callable(getlist):
+            counties_list = request.data.getlist('counties')
+        else:
+            raw = request.data.get('counties')
+            if isinstance(raw, (list, tuple)):
+                counties_list = list(raw)
+            elif raw is not None and raw != "":
+                counties_list = [raw]
+        
+        # Call parent update (this will handle the Form fields)
+        response = super().update(request, *args, **kwargs)
+        
+        # Now sync CountyForm records if counties were provided
+        if 'counties' in request.data or counties_list:
+            try:
+                # Delete existing CountyForm records for this form
+                CountyForm.objects.filter(form=instance).delete()
+                
+                # Create new CountyForm records for the assigned counties
+                for county_id in counties_list:
+                    try:
+                        county = County.objects.get(id=county_id)
+                        CountyForm.objects.create(
+                            county=county,
+                            form=instance,
+                            status='pending'
+                        )
+                    except County.DoesNotExist:
+                        pass  # Skip if county doesn't exist
+            except Exception as e:
+                # Log but don't fail the update
+                print(f"Error syncing counties for form {instance.id}: {e}")
+        
+        return response
+
     @action(detail=True, methods=["get"], url_path="file")
     def serve_file(self, request, pk=None):
         """
         Streams the stored form file from Supabase Storage with correct headers.
         - Inline for PDFs so browsers render them.
         - Attachment for other types.
+        - Redirects to external URLs if form.url is a full URL.
         """
         form = self.get_object()
         key = form.url
         if not key:
             raise Http404("No file associated with this form")
+
+        # If the URL is an external link (not a Supabase key), redirect to it
+        if key.startswith("http://") or key.startswith("https://"):
+            from django.shortcuts import redirect
+            return redirect(key)
 
         bucket = os.getenv('SUPABASE_S3_BUCKET_NAME') or 'forms'
         sb = getattr(settings, 'SUPABASE_CLIENT', None)
@@ -251,27 +303,168 @@ class CountyFormViewSet(viewsets.ModelViewSet):
     serializer_class = CountyFormSerializer
 
     def partial_update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        
+        # Handle file upload for completed forms
+        completed_file = request.FILES.get('completed_file')
+        if completed_file:
+            try:
+                # Use the completed_forms bucket (separate from regular forms bucket)
+                bucket = os.getenv('SUPABASE_S3_COMPLETED_FORMS_FOLDER') or 'completed_forms'
+                
+                # Build path: {form_id}/{county_id}/{user_id}/filename
+                form_id = instance.form_id
+                county_id = instance.county_id
+                user_id = request.user.id if request.user.is_authenticated else 'anonymous'
+                
+                # Create a safe filename
+                original_name = os.path.basename(getattr(completed_file, 'name', 'upload'))
+                base, ext = os.path.splitext(original_name)
+                safe_base = slugify(base) or 'completed-form'
+                uid = uuid.uuid4().hex[:8]
+                unique_name = f"{form_id}/{county_id}/{user_id}/{safe_base}-{uid}{ext}"
+                
+                # Get the Supabase client
+                sb = getattr(settings, 'SUPABASE_CLIENT', None)
+                if sb is None:
+                    return Response({"error": "Supabase client is not configured"}, status=500)
+                
+                # Read file bytes and upload
+                file_bytes = completed_file.read()
+                content_type = getattr(completed_file, 'content_type', None) or 'application/octet-stream'
+                
+                try:
+                    res = sb.storage.from_(bucket).upload(
+                        unique_name,
+                        file_bytes,
+                        file_options={"content-type": content_type},
+                    )
+                except TypeError:
+                    try:
+                        res = sb.storage.from_(bucket).upload(
+                            unique_name,
+                            file_bytes,
+                            {"content-type": content_type},
+                        )
+                    except TypeError:
+                        res = sb.storage.from_(bucket).upload(unique_name, file_bytes)
+                
+                # Check for upload errors
+                if isinstance(res, dict):
+                    err = res.get('error') or (res.get('data') and res['data'].get('error'))
+                    if err:
+                        return Response({"error": f"Supabase upload error: {err}"}, status=500)
+                
+                # Store the object key in completed_file_url
+                instance.completed_file_url = unique_name
+                instance.save(update_fields=['completed_file_url'])
+                
+            except Exception as e:
+                return Response({
+                    "error": f"File upload failed: {e}",
+                    "hint": "Ensure Supabase bucket exists and allows inserts"
+                }, status=500)
+        
+        # Now proceed with the normal partial update (status change, etc.)
         response = super().partial_update(request, *args, **kwargs)
-        try:
-            instance = self.get_object()
-        except Exception:
-            return response
+        
+        # Refresh instance from database to get updated status
+        instance.refresh_from_db()
+        
+        print(f"[DEBUG] CountyForm {instance.id} status after update: {instance.status}")
 
-        # If a county marks the form completed, optionally update the parent Form
+        # If a county marks the form completed, update parent Form and notify state officials
         try:
             if instance.status == 'completed' and instance.form_id:
-                from django.utils import timezone
+                print(f"[DEBUG] Form is completed, checking if all counties are done...")
                 # If all related CountyForms are completed, mark the Form completed
                 remaining = CountyForm.objects.filter(form_id=instance.form_id).exclude(status='completed').exists()
                 if not remaining:
                     if not instance.form.is_completed:
                         instance.form.is_completed = True
                         instance.form.completed_at = timezone.now()
-                        # When the overall form is completed, clear next_notify_date
                         instance.form.next_notify_date = None
                         instance.form.save(update_fields=['is_completed', 'completed_at', 'next_notify_date'])
+                
+                # Send email notification to state officials
+                try:
+                    county = instance.county
+                    form = instance.form
+                    state = county.state
+                    
+                    if state:
+                        from accounts.models import StateOfficial, CountyOfficial
+                        state_officials = StateOfficial.objects.filter(state=state)
+                        
+                        # Determine who submitted the form
+                        submitter_name = "Unknown"
+                        submitter_type = "user"
+                        if request.user.is_authenticated:
+                            submitter_name = request.user.email or request.user.username
+                            if StateOfficial.objects.filter(pk=request.user.pk).exists():
+                                submitter_type = "State Official"
+                            elif CountyOfficial.objects.filter(pk=request.user.pk).exists():
+                                submitter_type = "County Official"
+                        
+                        # Build the download link for the completed file
+                        file_link = ""
+                        if instance.completed_file_url:
+                            # Generate a signed URL or provide a dashboard link
+                            file_link = f"\n\nDownload the completed form: {request.build_absolute_uri(f'/api/forms/county-forms/{instance.id}/completed-file/')}"
+                        
+                        for official in state_officials:
+                            if official.email:
+                                try:
+                                    send_email(
+                                        subject=f"Form Completed: {form.name} by {county.name}",
+                                        body=f"{county.name} County has completed the form '{form.name}'.\n\nSubmitted by: {submitter_name} ({submitter_type}){file_link}\n\nSubmitted on: {timezone.now().strftime('%B %d, %Y at %I:%M %p')}",
+                                        receiver_email=official.email,
+                                    )
+                                except Exception as e:
+                                    print(f"Failed to send completion email to {official.email}: {e}")
+                except Exception as e:
+                    print(f"Failed to notify state officials: {e}")
+                    
         except Exception:
             # Non-fatal; keep the partial update response even if aggregation update fails
             pass
 
         return response
+
+    @action(detail=True, methods=["get"], url_path="completed-file")
+    def serve_completed_file(self, request, pk=None):
+        """
+        GET /api/forms/county-forms/{pk}/completed-file/
+        Streams the completed form file from Supabase Storage.
+        """
+        county_form = self.get_object()
+        key = county_form.completed_file_url
+        
+        if not key:
+            raise Http404("No completed file for this submission")
+        
+        bucket = os.getenv('SUPABASE_S3_COMPLETED_FORMS_FOLDER') or 'completed_forms'
+        sb = getattr(settings, 'SUPABASE_CLIENT', None)
+        if sb is None:
+            return Response({"error": "Supabase client is not configured"}, status=500)
+        
+        try:
+            blob = sb.storage.from_(bucket).download(key)
+            if isinstance(blob, dict):
+                if blob.get('error'):
+                    return Response({"error": f"Download failed: {blob['error']}"}, status=500)
+                file_bytes = blob.get('data') or blob.get('file') or b''
+            else:
+                file_bytes = blob
+        except Exception as e:
+            return Response({"error": f"Download failed: {e}"}, status=500)
+        
+        ctype, _ = mimetypes.guess_type(key)
+        ctype = ctype or 'application/octet-stream'
+        resp = HttpResponse(file_bytes, content_type=ctype)
+        filename = os.path.basename(key)
+        if ctype == 'application/pdf':
+            resp["Content-Disposition"] = f'inline; filename="{filename}"'
+        else:
+            resp["Content-Disposition"] = f'attachment; filename="{filename}"'
+        return resp

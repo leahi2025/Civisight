@@ -820,6 +820,13 @@ select.input-style {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex: 1;
+}
+
+.county-status-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .county-status-name {

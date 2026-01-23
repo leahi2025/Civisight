@@ -19,7 +19,7 @@ class CountyFormStatusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CountyForm
-        fields = ("id", "county_id", "county_name", "status", "created_at", "updated_at")
+        fields = ("id", "county_id", "county_name", "status", "completed_file_url", "created_at", "updated_at")
 
 
 
@@ -55,8 +55,9 @@ class FormSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["date_uploaded"]
 
-    # Accept a list of county ids on create/update
-    counties = serializers.PrimaryKeyRelatedField(queryset=County.objects.all(), many=True, required=False)
+    # Accept a list of county ids on create/update, but don't use DRF's M2M handler
+    # We manually handle this in the view via CountyForm
+    counties = serializers.PrimaryKeyRelatedField(queryset=County.objects.all(), many=True, required=False, write_only=True)
     # Provide a read-only resolved list of county objects for convenience
     counties_details = serializers.SerializerMethodField()
 
